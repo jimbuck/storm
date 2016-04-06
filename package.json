@@ -1,0 +1,34 @@
+{
+  "name": "storm",
+  "version": "0.0.1",
+  "description": "An advanced performance/optimization testing library for Node.",
+  "main": "index.js",
+  "scripts": {
+    "test": "ava -t | tap-summary",
+    "tdd": "ava -w -v -s"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JimmyBoh/storm.git"
+  },
+  "author": "Jim Buck <jim@jimmyboh.com> (http://jimmyboh.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JimmyBoh/storm/issues"
+  },
+  "homepage": "https://github.com/JimmyBoh/storm#readme",
+  "devDependencies": {
+    "ava": "^0.13.0",
+    "tap-summary": "^1.2.0"
+  },
+  "dependencies": {},
+  "ava": {
+    "files": [
+      "./lib/**/*.spec.js"
+    ],
+    "source": [
+      "./lib/**/*.js",
+      "!./lib/**/*.spec.js"
+    ]
+  }
+}
