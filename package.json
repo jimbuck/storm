@@ -27,8 +27,7 @@
       "./lib/**/*.spec.js"
     ],
     "source": [
-      "./lib/**/*.js",
-      "!./lib/**/*.spec.js"
+      "./lib/**/*.js"
     ]
   }
 }
