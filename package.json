@@ -4,8 +4,8 @@
   "description": "An advanced performance/optimization testing library for Node.",
   "main": "index.js",
   "scripts": {
-    "test": "ava -t | tap-summary",
-    "tdd": "ava -w -v -s"
+    "test": "ava -sv",
+    "tdd": "ava -swv --timeout=3s"
   },
   "repository": {
     "type": "git",
@@ -19,9 +19,11 @@
   "homepage": "https://github.com/JimmyBoh/storm#readme",
   "devDependencies": {
     "ava": "^0.13.0",
+    "stream-to-array": "^2.3.0",
     "tap-summary": "^1.2.0"
   },
-  "dependencies": {},
+  "dependencies": {
+  },
   "ava": {
     "files": [
       "./lib/**/*.spec.js"
