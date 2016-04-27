@@ -10,18 +10,15 @@ var paths = {
 };
 
 gulp.task('clean', function () {
-  return del([
-    paths.dist,
-    paths.root + '_references.js*'
-  ]);
+  return del([ paths.dist ]);
 });
 
 function compileTypescript() {
   return shell.task('tsc');
 }
 
-gulp.task('compile', compileTypescript());
+gulp.task('build', compileTypescript());
 
-gulp.task('build', ['clean'], compileTypescript());
+gulp.task('rebuild', ['clean'], compileTypescript());
 
 gulp.task('default', ['build']);

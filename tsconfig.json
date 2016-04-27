@@ -5,6 +5,7 @@
     "target": "es2015",
     "sourceMap": true,
     "removeComments": false,
+    "rootDir": "src",
     "outDir": "dist"
   },
   "exclude": [

@@ -4,9 +4,9 @@
   "description": "An advanced performance/optimization testing library for Node.",
   "main": "index.js",
   "scripts": {
-    "test": "gulp build & ava -sv",
-    "tdd": "gulp build & ava -swv --timeout=3s",
-    "prepublish": "gulp build"
+    "test": "ava -sv",
+    "tdd": "ava -swv --timeout=3s",
+    "prepublish": "gulp rebuild"
   },
   "repository": {
     "type": "git",
