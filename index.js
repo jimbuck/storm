@@ -1,4 +1,4 @@
 
-var storm = require('./lib/storm');
+var storm = require('./dist/storm');
 
 module.exports = storm;

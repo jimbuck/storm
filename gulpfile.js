@@ -5,13 +5,13 @@ var shell = require('gulp-shell');
 
 var paths = {
   root: './',
-  lib: './lib/'
+  src: './src/',
+  dist: './dist/*'
 };
 
 gulp.task('clean', function () {
   return del([
-    paths.lib + '**/*.js*',
-    '!' + paths.lib + '**/*.spec.js',
+    paths.dist,
     paths.root + '_references.js*'
   ]);
 });
