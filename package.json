@@ -31,10 +31,10 @@
   "dependencies": {},
   "ava": {
     "files": [
-      "./src/**/*.spec.js"
+      "./dist/**/*.spec.js"
     ],
     "source": [
-      "./src/**/*.js"
+      "./dist/**/*.js"
     ]
   }
 }
