@@ -17,7 +17,7 @@ gulp.task('clean', function () {
 });
 
 function compileTypescript() {
-  return shell.task('node_modules\\.bin\\tsc');
+  return shell.task('tsc');
 }
 
 gulp.task('compile', compileTypescript());
