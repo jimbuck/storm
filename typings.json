@@ -1,0 +1,9 @@
+{
+  "name": "storm",
+  "version": false,
+  "dependencies": {},
+  "ambientDependencies": {
+    "node": "registry:dt/node#4.0.0+20160423143914",
+    "stream-to-array": "registry:dt/stream-to-array#0.0.0+20160316155526"
+  }
+}

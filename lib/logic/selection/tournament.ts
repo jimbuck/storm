@@ -1,18 +1,18 @@
-'use strict';
 
-const BaseSelection = require('./base');
+import {IScorable} from '../models';
+import BaseSelection from './base';
 
-class Tournament extends BaseSelection
+export default class Tournament extends BaseSelection
 {
-  constructor(opts) {
-    super(opts);
+  public tournamentSize: number;
+
+  constructor(opts:{tournamentSize:number}) {
+    super();
     
     this.tournamentSize = opts.tournamentSize;
   }
 
-  select(gen, count) {
-    super.select(gen, count);
-
+  public select(gen: IScorable[], count: number) {
     let availablePlayers = gen.slice();
     let selection = [];
 
@@ -20,7 +20,7 @@ class Tournament extends BaseSelection
       // Copy, shuffle, and limit the players array.
       let players = shuffle(availablePlayers.slice()).slice(0, this.tournamentSize);
 
-      let champion = this._tourney(players);
+      let champion = this.tourney(players);
 
       selection.push(champion);
       availablePlayers.splice(availablePlayers.indexOf(champion), 1);
@@ -29,7 +29,7 @@ class Tournament extends BaseSelection
     return selection;
   }
 
-  _tourney(players) {
+  protected tourney(players: IScorable[]) {
     //console.log(`\nStarting tournament with ${players.length} players!`, players);
     if (players.length === 1) {
       return players[0];
@@ -54,7 +54,7 @@ class Tournament extends BaseSelection
 
     //console.log(`Tournament done, with ${players.length} remaining!\n`);
 
-    return this._tourney(winners);
+    return this.tourney(winners);
   }
 }
 
@@ -74,5 +74,3 @@ function shuffle(source) {
 
   return source;
 }
-
-module.exports = Tournament;

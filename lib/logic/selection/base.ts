@@ -1,22 +1,15 @@
-'use strict';
 
-class BaseSelection
+import {IScorable} from '../models';
+
+abstract class BaseSelection
 {
-  constructor(options) {
-    
-  }
+  abstract select(gen: IScorable[], count: number): IScorable[];
 
-  select(gen, count) {
-    if (!(gen instanceof Array)) {
-      throw new Error(`'gen' must be an array!`);
+  protected compare(a: IScorable, b: IScorable) {
+    if (!a && !b) {
+      throw new Error(`Must pass at least one result!`);
     }
 
-    if (typeof count !== 'number' || count < 1) {
-      throw new Error(`'count' must be a positive number!`);
-    }
-  }
-
-  compare(a, b) {
     // If b is undefined...
     if (a && !b) {
       return a;
@@ -42,4 +35,4 @@ class BaseSelection
   }
 }
 
-module.exports = BaseSelection;
+export default BaseSelection;

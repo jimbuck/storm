@@ -1,5 +1,4 @@
-'use strict';
 
-const storm = require('./lib/storm.js');
+var storm = require('./lib/storm');
 
 module.exports = storm;

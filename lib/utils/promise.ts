@@ -1,33 +1,33 @@
-'use strict';
 
-class PromiseHelper
+
+export default class PromiseHelper
 {
   constructor() {
 
   }
 
-  series(handlers) {
-    if (!((functions instanceof Array))) {
+  static series(handlers: ((value?:any)=> any)[]) {
+    if (!((handlers instanceof Array))) {
       throw new Error(`'handlers' must be an array of functions!`);
     }
     
     let p = Promise.resolve();
 
-    functions.forEach(fn => {
+    handlers.forEach(fn => {
       p = p.then(fn);
     });
 
     return p;    
   }
 
-  times(fn, times) {
+  static times(fn: (value:any)=>void, times: number) {
     if (typeof times !== 'number') {
       throw new Error(`'times' must be an integer!`);
     }
 
     if (times <= 0) {
       throw new Error(`'times' must be greater than 0!`)
-    }    
+    }
 
     let p = Promise.resolve();
 
@@ -38,5 +38,3 @@ class PromiseHelper
     return p;
   }  
 }
-
-module.exports = new PromiseHelper();

@@ -1,45 +1,73 @@
-'use strict';
+import {Readable} from 'stream';
 
-const stream = require('stream');
+import {ArgumentGenerator} from './utils/data';
 
-const data = require('./helpers/data');
-
-const time = require('./helpers/time');
-const promise = require('./helpers/promise');
-
-const GenerationRunner = require('./logic/generation-runner');
+import time from './utils/time';
+import PromiseHelper from './utils/promise';
 
 const identity = (result) => {return result};
 
 let taskId = 0;
 
-class Storm extends stream.Readable
+// Expose these helper classes.
+export {
+  OrderedNumber,
+  RandomInteger,
+  RandomFloat,
+  OrderedItem
+} from './utils/data';
+
+export interface IStormConfig
 {
-  constructor(options)
+  params: {};
+  
+  limit: ((i: number) => boolean) | number;
+  
+  generationSize: number;
+  
+  run: ((params: any) => any);
+
+  score?: (data: any) => number;
+}
+
+export class Storm extends Readable
+{
+  public params: ArgumentGenerator;
+  public limit: ((i: number) => boolean) | number;
+
+  private isStream: boolean;
+  private isPromise: boolean;
+  public run: (params: any) => PromiseLike<any>;
+  public score: (data: any) => number;
+  
+  private results: any[];
+  private currentIteration: number;
+
+  constructor(options: IStormConfig)
   {
-    if (typeof options === 'undefined') {
-      throw new Error(`Options must be specified!`);
-    }
+    // if (typeof options === 'undefined') {
+    //   throw new Error(`Options must be specified!`);
+    // }
 
-    if (typeof options.params === 'undefined') {
-      throw new Error(`'params' must be specified!`);
-    }
+    // if (typeof options.params === 'undefined') {
+    //   throw new Error(`'params' must be specified!`);
+    // }
 
-    if (typeof options.limit === 'undefined') {
-      throw new Error(`'limit' must be specified!`);
-    }
+    // if (typeof options.limit === 'undefined') {
+    //   throw new Error(`'limit' must be specified!`);
+    // }
 
-    if (typeof options.generationSize === 'undefined') {
-      throw new Error(`'generationSize' must be specified!`);
-    }
+    // if (typeof options.generationSize === 'undefined') {
+    //   throw new Error(`'generationSize' must be specified!`);
+    // }
 
-    if (typeof options.run !== 'function') {
-      throw new Error(`'run' must be specified!`);
-    }
+    // if (typeof options.run !== 'function') {
+    //   throw new Error(`'run' must be specified!`);
+    // }
 
     super({ objectMode: true });
     
-    this.params = new data.ArgumentGenerator(options.params); 
+    this.params = new ArgumentGenerator(options.params); 
 
     this.isStream = false;
     this.isPromise = false;
@@ -75,17 +103,17 @@ class Storm extends stream.Readable
     }
     this.isPromise = true;
     
-    this._results = [];
+    this.results = [];
     return this._stepUntilDone();
   }
 
   _stepUntilDone() {
     return this.step().then(result => {
       if (result) {
-        this._results.push(result);
+        this.results.push(result);
         return this._stepUntilDone();
       } else {
-        return this._results;
+        return this.results;
       }
     });
   }
@@ -127,7 +155,7 @@ class Storm extends stream.Readable
 
         return {
           id: id,
-          iteration: this._currentIteration,
+          iteration: this.currentIteration,
           success: true,
           time: timeDiff,
           params: unit,
@@ -139,7 +167,7 @@ class Storm extends stream.Readable
         let timeDiff = time.current - startTime;
         return {
           id: id,
-          iteration: this._currentIteration,
+          iteration: this.currentIteration,
           success: false,
           time: timeDiff,
           params: unit,
@@ -149,11 +177,3 @@ class Storm extends stream.Readable
       });
   }  
 }
-
-module.exports = {
-  Storm,
-  OrderedNumber: data.OrderedNumber,
-  RandomInteger: data.RandomInteger,
-  RandomFloat: data.RandomFloat,
-  OrderedItem: data.OrderedItem
-};

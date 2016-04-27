@@ -1,0 +1,13 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2015",
+    "sourceMap": true,
+    "removeComments": false
+  },
+  "exclude": [
+    "node_modules",
+    "typings"
+  ]
+}

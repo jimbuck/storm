@@ -1,11 +1,12 @@
 {
   "name": "storm",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "An advanced performance/optimization testing library for Node.",
   "main": "index.js",
   "scripts": {
-    "test": "ava -sv",
-    "tdd": "ava -swv --timeout=3s"
+    "test": "gulp build & ava -sv",
+    "tdd": "gulp build & ava -swv --timeout=3s",
+    "prepublish": "gulp build"
   },
   "repository": {
     "type": "git",
@@ -18,12 +19,16 @@
   },
   "homepage": "https://github.com/JimmyBoh/storm#readme",
   "devDependencies": {
-    "ava": "^0.13.0",
+    "ava": "^0.14.0",
+    "del": "^2.2.0",
+    "gulp": "^3.9.1",
+    "gulp-shell": "^0.5.2",
     "stream-to-array": "^2.3.0",
-    "tap-summary": "^1.2.0"
+    "tap-summary": "^1.2.0",
+    "typescript": "^1.8.10",
+    "typings": "^0.8.1"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "ava": {
     "files": [
       "./lib/**/*.spec.js"
