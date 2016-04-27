@@ -6,7 +6,7 @@
   "scripts": {
     "test": "ava -sv",
     "tdd": "ava -swv --timeout=3s",
-    "prepublish": "gulp rebuild"
+    "prepublish": "gulp build"
   },
   "repository": {
     "type": "git",
