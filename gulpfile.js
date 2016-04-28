@@ -1,11 +1,11 @@
 'use strict';
 
-var gulp = require('gulp');
-var del = require('del');
-var shell = require('gulp-shell');
-var args = require('yargs').argv;
+const gulp = require('gulp');
+const del = require('del');
+const shell = require('gulp-shell');
+const args = require('yargs').argv;
 
-var paths = {
+const paths = {
   root: './',
   src: './src/',
   dist: './dist/'
@@ -38,7 +38,7 @@ class Tasks {
   }
 
   static bump(step) {
-    return shell.task('npm version ' + step + ' -m ' + args.m);
+    return shell.task(`npm version ${step} -m "${args.m}"`);
   }
 }
 
@@ -68,7 +68,7 @@ gulp.task('watch', ['build'], Tasks.watch);
 gulp.task('publish', ['test'], Tasks.publish);
 
 // Set up the git version helpers...
-['patch', 'minor', 'major'].forEach(function (step) {
+['patch', 'minor', 'major'].forEach(step => {
   gulp.task('bump:' + step, Tasks.bump(step));
 });
 
