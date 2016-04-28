@@ -38,7 +38,7 @@ class Tasks {
   }
 
   static bump(step) {
-    return shell.task(`npm version ${step} -m "${args.m}"`);
+    return shell.task(`npm version ${step} -m "${(args.m || 'Bump to %s.')}"`);
   }
 }
 
