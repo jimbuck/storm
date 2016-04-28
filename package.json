@@ -1,5 +1,5 @@
 {
-  "name": "storm",
+  "name": "storm-js",
   "version": "0.1.3",
   "description": "An advanced performance/optimization testing library for Node.",
   "main": "index.js",
