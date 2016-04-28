@@ -18,9 +18,9 @@ export interface IStormConfig {
     generationSize: number;
     /**
      * Used to execute target code by mapping supplied parameters to the correct usage.
-     * @param {any} params - The dynamic data set created randomly or via breeding/mutation.
+     * @param {TInput} params - The dynamic data set created randomly or via breeding/mutation.
      */
-    run: ((params: any) => any);
+    run: (params: any) => any | PromiseLike<any>;
     /**
      * An optional transform function to convert a result into a numerical score.
      * @param {IStormRecord} record - The current record, including runtime duration, initial parameters, and result data.
@@ -39,6 +39,10 @@ export declare class StormResult {
      * The sum of all of the scores across all generations (used to find averages).
      */
     private totalScore;
+    /**
+     * The total number of generations.
+     */
+    totalGenerations: number;
     /**
      * The average score across all generations.
      */
@@ -91,7 +95,7 @@ export interface IStormRecord {
     /**
      * The generation number of the record.
      */
-    iteration: number;
+    generation: number;
     /**
      * The score this record has revieved. If the trial failed, the score will be zero.
      */

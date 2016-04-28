@@ -1,4 +1,10 @@
-export declare abstract class BaseGenerator<T> {
+export interface IDataGenerator<T> {
+    getValues(): Iterator<T>;
+}
+export interface IDynamicParams {
+    [prop: string]: IDataGenerator<any>;
+}
+export declare abstract class BaseGenerator<T> implements IDataGenerator<T> {
     protected iterator: Iterator<T>;
     abstract getValues(): Iterator<T>;
     nextValue(): T;
@@ -30,10 +36,10 @@ export declare class OrderedItem<T> extends BaseGenerator<T> {
     constructor(values: T[]);
     getValues(): IterableIterator<T>;
 }
-export declare class ArgumentGenerator extends BaseGenerator<any> {
+export declare class ArgumentGenerator extends BaseGenerator<IDynamicParams> {
     private params;
     private props;
     private lookup;
-    constructor(params: {});
+    constructor(params: IDynamicParams);
     getValues(): IterableIterator<any>;
 }

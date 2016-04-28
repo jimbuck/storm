@@ -1,7 +1,7 @@
 import {Readable} from 'stream';
 
 import {IStormConfig, IStormRecord, StormResult} from './logic/models';
-import {ArgumentGenerator} from './utils/data';
+import {ArgumentGenerator, IDynamicParams} from './utils/data';
 
 import time from './utils/time';
 
@@ -12,13 +12,9 @@ const identity = (thing: any) => { return thing };
 
 let trialId = 0;
 
-// Expose these helper classes.
-export {
-  OrderedNumber,
-  RandomInteger,
-  RandomFloat,
-  OrderedItem
-} from './utils/data';
+// Expose helper classes and types.
+export {OrderedNumber, RandomInteger, RandomFloat, OrderedItem} from './utils/data';
+export {IStormConfig, IStormRecord, StormResult} from './logic/models';
 
 export interface DoneFunction
 {
@@ -28,7 +24,7 @@ export interface DoneFunction
 /**
  * An advanced optimization library.
  */
-export class Storm extends Readable
+export class Storm// extends Readable
 {
   public params: ArgumentGenerator;
   public done: DoneFunction;
@@ -36,10 +32,10 @@ export class Storm extends Readable
   private isStream: boolean;
   private isPromise: boolean;
   public run: (params: any) => PromiseLike<any>;
-  public score: (data: any) => number;
+  public score: (data: IStormRecord) => number;
   
   public generationSize: number;
-  private currentIteration: number;
+  private currentGeneration: number;
   private results: StormResult;
 
   public selector: BaseSelector;
@@ -70,15 +66,16 @@ export class Storm extends Readable
       throw new Error(`'run' must be specified!`);
     }
 
-    super({ objectMode: true });
-    
-    this.params = new ArgumentGenerator(options.params); 
+    //super({ objectMode: true });
 
+    this.generationSize = options.generationSize;
+    this.params = new ArgumentGenerator(options.params); 
+        
     this.isStream = false;
     this.isPromise = false;
     
     if (typeof options.done === 'number') {
-      let doneNum = options.done as number;
+      let doneNum = (options.done as number) - 1;
       this.done = (gen: number, result: StormResult) => {
         return gen >= doneNum;
       };
@@ -86,78 +83,80 @@ export class Storm extends Readable
       this.done = options.done as DoneFunction;
     }
 
+    this.run = options.run;
+    this.score = options.score;
+
     this.selector = options.selector || new Tournament({
       tournamentSize: Math.max(5, Math.floor(this.generationSize * 0.2))
     });
+
+    this.currentGeneration = 0;
   }
 
-  public _read() {
-    if (this.isPromise) {
-      throw new Error(`'Once 'start' is called you cannot stream!`);
-    }
-    this.isStream = true;
+  // public _read() {
+  //   if (this.isPromise) {
+  //     throw new Error(`'Once 'start' is called you cannot stream!`);
+  //   }
+  //   this.isStream = true;
     
-    this.step().then((generation: IStormRecord[]) => {
-      if (generation) {
-        generation.forEach(result => this.push(result));
-      } else {
-        this.push(null);
-      }
-    });  
-  }
+  //   this.step().then((generation: IStormRecord[]) => {
+  //     if (generation) {
+  //       generation.forEach(result => this.push(result));
+  //     } else {
+  //       this.push(null);
+  //     }
+  //   });  
+  // }
 
-  public start(): PromiseLike<StormResult> {
+  public async start(): Promise<StormResult> {
     if (this.isStream) {
       throw new Error(`'Once 'pipe' is called you cannot use promises!`);
     }
     this.isPromise = true;
-    
-    this.results = new StormResult();
-    return this._stepUntilDone();
-  }
+    this.currentGeneration = 0;
 
-  private async _stepUntilDone(): Promise<StormResult> {
-    let generation = await this.step();
-    
-    this.results.add(generation);
-    
-    if (this.done(this.currentIteration, this.results)) {
-      return this.results;
-    } else {
-      return await this._stepUntilDone();
+    let result = new StormResult();
+    result.add(await this.step());
+
+    while (!this.done(this.currentGeneration++, result)) {
+      result.add(await this.step(result.gen));
     }
+
+    return result;
   }
 
   /**
    * Steps one generation forward, adding the data to this.results.
-   */ 
-  private async step(): Promise<IStormRecord[]> {
+   */  
+  public async step(prevGen?: IStormRecord[]): Promise<IStormRecord[]>
+  {
+    let currentGen: IDynamicParams[];
 
-    let generation: IStormRecord[] = [];
+    if (prevGen) {
+      currentGen = this.params.nextValues(this.generationSize);//this.mutator.next(prevGen);
+    } else {
+      currentGen = this.params.nextValues(this.generationSize);
+    }
 
-    for (let i = 0; i < this.generationSize; i++) {
-      let id = trialId++;
-      //console.log(`Starting task ${id}...`);
-      let unit = this.params.nextValue();
-
-      // Stop when all units have been processed...    
-      if (typeof unit === 'undefined') {
-        return null;
-      }
-
-      let startTime = time.current;
+    let results: IStormRecord[] = [];
+    
+    for (let i = 0; i < currentGen.length; i++){
+      let id: number = trialId++;
+      let params: IDynamicParams = currentGen[i];
+      
+      let startTime: number = time.current;
 
       let record: IStormRecord;
       
       try {
-        let result = await this.run.call(unit, unit);
+        let result = await this.run.call(params, params);
         let timeDiff = time.current - startTime;
         record = {
           id: id,
-          iteration: this.currentIteration,
+          generation: this.currentGeneration,
           success: true,
           time: timeDiff,
-          params: unit,
+          params,
           result,
           score: 0
         };
@@ -167,18 +166,18 @@ export class Storm extends Readable
         let timeDiff = time.current - startTime;
         record = {
           id: id,
-          iteration: this.currentIteration,
+          generation: this.currentGeneration,
           success: false,
           time: timeDiff,
-          params: unit,
+          params,
           result: ex,
-          score: null // Should this be zero? -1?
+          score: 0
         };
       }
 
-      generation.push(record);
+      results.push(record);
     }
 
-    return generation;
+    return results;
   }
 }

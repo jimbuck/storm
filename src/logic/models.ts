@@ -1,5 +1,7 @@
 import BaseSelector from './selectors/base';
 
+import {IDynamicParams} from '../utils/data';
+
 /**
  * Configuration Settings for a standard Storm instance.
  */
@@ -23,9 +25,9 @@ export interface IStormConfig
 
   /**
    * Used to execute target code by mapping supplied parameters to the correct usage.
-   * @param {any} params - The dynamic data set created randomly or via breeding/mutation.
+   * @param {TInput} params - The dynamic data set created randomly or via breeding/mutation.
    */
-  run: ((params: any) => any);
+  run: (params: any) => any|PromiseLike<any>;
 
   /**
    * An optional transform function to convert a result into a numerical score.
@@ -49,6 +51,11 @@ export class StormResult
    * The sum of all of the scores across all generations (used to find averages).
    */  
   private totalScore: number;
+
+  /**
+   * The total number of generations.
+   */  
+  public totalGenerations: number;
 
   /**
    * The average score across all generations.
@@ -98,6 +105,8 @@ export class StormResult
   constructor() {
     this.all = [];
     this.gen = [];
+    this.totalGenerations = 0;
+    this.totalScore = 0;
     this.avgGen = 0;
     this.min = { score: Number.MAX_VALUE } as IStormRecord;
     this.max = { score: Number.MIN_VALUE } as IStormRecord;
@@ -129,6 +138,8 @@ export class StormResult
       this.gen.push(result);
       this.all.push(result);
     });
+    this.totalGenerations++;
+    this.totalScore += genTotalScore;
     this.avgGen = genTotalScore / results.length;
   } 
 }
@@ -146,7 +157,7 @@ export interface IStormRecord
   /**
    * The generation number of the record.
    */
-  iteration: number;
+  generation: number;
 
   /**
    * The score this record has revieved. If the trial failed, the score will be zero.

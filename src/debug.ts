@@ -3,7 +3,7 @@
  * debug.js - This is a simple script that is used for debugging purposes only.
  */
 
-import {Storm, RandomInteger} from './storm';
+import {Storm, RandomFloat} from './storm';
 
 // The equation we are trying to optimize!
 const quadratic = function (x:number, y:number) {
@@ -12,14 +12,14 @@ const quadratic = function (x:number, y:number) {
 
 let storm = new Storm({
   params: {
-    x: new RandomInteger(1, 20),     // [1,2, ..., 20]
-    y: new RandomInteger(-10, 10) // [-10, -8, ..., 20]
+    x: new RandomFloat(-10, 10),  // [1, 2, ..., 20]
+    y: new RandomFloat(-10, 10) // [-10, -9, ..., 9, 10]
   },
-  generationSize: 10, // Work with 10 solutions at a time.
-  done: 10, // limit to 10 generations (may also be a function)
-  run: (params) => {
+  generationSize: 50, // Work with 10 solutions at a time.
+  done: 2000, // limit to 10 generations (may also be a function)
+  run: (data: any) => {
     // Just pass the parameters to the module to test.
-    return quadratic(params.x, params.y);
+    return Promise.resolve(quadratic(data.x, data.y));
   },
   score: function (record) {
     // Invert the absolute results (closer to zero is the goal)
@@ -27,10 +27,14 @@ let storm = new Storm({
   }
 });
 
+let startTime = Date.now();
+
 storm
   .start()
   .then(results => {
+    let duration = Date.now() - startTime;
     console.log('Min:', results.min);
     console.log('Max:', results.max);
-    console.log('All:', results.all);
+    console.log(`Avg: ${results.avg} (${results.totalGenerations} generations in ${Math.floor(duration / 100) / 10}s)`);
+    //console.log('All:', results.all);
   });

@@ -9,25 +9,28 @@ const quadratic = function (x, y) {
 };
 let storm = new storm_1.Storm({
     params: {
-        x: new storm_1.RandomInteger(1, 20),
-        y: new storm_1.RandomInteger(-10, 10) // [-10, -8, ..., 20]
+        x: new storm_1.RandomFloat(-10, 10),
+        y: new storm_1.RandomFloat(-10, 10) // [-10, -9, ..., 9, 10]
     },
-    generationSize: 10,
-    done: 10,
-    run: (params) => {
+    generationSize: 50,
+    done: 2000,
+    run: (data) => {
         // Just pass the parameters to the module to test.
-        return quadratic(params.x, params.y);
+        return Promise.resolve(quadratic(data.x, data.y));
     },
     score: function (record) {
         // Invert the absolute results (closer to zero is the goal)
         return 1 / Math.abs(record.result);
     }
 });
+let startTime = Date.now();
 storm
     .start()
     .then(results => {
+    let duration = Date.now() - startTime;
     console.log('Min:', results.min);
     console.log('Max:', results.max);
-    console.log('All:', results.all);
+    console.log(`Avg: ${results.avg} (${results.totalGenerations} generations in ${Math.floor(duration / 100) / 10}s)`);
+    //console.log('All:', results.all);
 });
 //# sourceMappingURL=debug.js.map

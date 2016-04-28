@@ -9,6 +9,8 @@ class StormResult {
     constructor() {
         this.all = [];
         this.gen = [];
+        this.totalGenerations = 0;
+        this.totalScore = 0;
         this.avgGen = 0;
         this.min = { score: Number.MAX_VALUE };
         this.max = { score: Number.MIN_VALUE };
@@ -44,6 +46,8 @@ class StormResult {
             this.gen.push(result);
             this.all.push(result);
         });
+        this.totalGenerations++;
+        this.totalScore += genTotalScore;
         this.avgGen = genTotalScore / results.length;
     }
 }

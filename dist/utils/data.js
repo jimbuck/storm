@@ -95,16 +95,16 @@ class ArgumentGenerator extends BaseGenerator {
         }
         this.params = params;
         this.props = Object.keys(this.params);
-        this.lookup = {};
+        this.lookup = new Map();
         this.props.forEach(prop => {
-            this.lookup[prop] = this.params[prop].getValues();
+            this.lookup.set(prop, this.params[prop].getValues());
         });
     }
     *getValues() {
         while (true) {
             let obj = {};
             this.props.forEach(prop => {
-                obj[prop] = this.lookup[prop].next().value;
+                obj[prop] = this.lookup.get(prop).next().value;
             });
             yield obj;
         }

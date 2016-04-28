@@ -1,5 +1,16 @@
 
-export abstract class BaseGenerator<T>
+
+export interface IDataGenerator<T>
+{
+  getValues(): Iterator<T>;
+}
+
+export interface IDynamicParams
+{
+  [prop: string]: IDataGenerator<any>;
+}
+
+export abstract class BaseGenerator<T> implements IDataGenerator<T>
 {
   protected iterator: Iterator<T>;
 
@@ -114,13 +125,13 @@ export class OrderedItem<T> extends BaseGenerator<T>
   }
 }
 
-export class ArgumentGenerator extends BaseGenerator<any>
+export class ArgumentGenerator extends BaseGenerator<IDynamicParams>
 {
-  private params: any;
+  private params: IDynamicParams;
   private props: string[];
-  private lookup: any;
+  private lookup: Map<string, Iterator<any>>;
 
-  constructor(params: {}) {
+  constructor(params: IDynamicParams) {
     super();
 
     if (!params) {
@@ -134,9 +145,9 @@ export class ArgumentGenerator extends BaseGenerator<any>
     this.params = params;
     this.props = Object.keys(this.params);
 
-    this.lookup = {};
+    this.lookup = new Map<string, Iterator<any>>();
     this.props.forEach(prop => {
-      this.lookup[prop] = this.params[prop].getValues();
+      this.lookup.set(prop, this.params[prop].getValues());
     });
   }
 
@@ -145,7 +156,7 @@ export class ArgumentGenerator extends BaseGenerator<any>
       let obj: any = {};
 
       this.props.forEach(prop => {
-        obj[prop] = this.lookup[prop].next().value;
+        obj[prop] = this.lookup.get(prop).next().value;
       });
 
       yield obj;
