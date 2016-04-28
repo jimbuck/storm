@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "gulp quicktest",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
     "preversion": "npm test",
     "version": "git add -A",
     "postversion": "git push && git push --tags && npm publish"
@@ -21,9 +22,11 @@
   "homepage": "https://github.com/JimmyBoh/storm#readme",
   "devDependencies": {
     "ava": "^0.14.0",
+    "coveralls": "^2.11.9",
     "del": "^2.2.0",
     "gulp": "^3.9.1",
     "gulp-shell": "^0.5.2",
+    "nyc": "^6.4.0",
     "stream-to-array": "^2.3.0",
     "tap-summary": "^1.2.0",
     "typescript": "^1.8.10",
@@ -37,6 +40,14 @@
     ],
     "source": [
       "./dist/**/*.js"
+    ]
+  },
+  "nyc": {
+    "include": [
+      "dist/**/*.js"
+    ],
+    "exclude": [
+      "dist/**/*spec.js"
     ]
   }
 }

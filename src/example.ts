@@ -19,7 +19,7 @@ let storm = new Storm({
   done: 2000, // limit to 10 generations (may also be a function)
   run: (data: any) => {
     // Just pass the parameters to the module to test.
-    return Promise.resolve(quadratic(data.x, data.y));
+    return quadratic(data.x, data.y);
   },
   score: function (record) {
     // Invert the absolute results (closer to zero is the goal)

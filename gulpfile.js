@@ -8,14 +8,15 @@ const args = require('yargs').argv;
 const paths = {
   root: './',
   src: './src/',
-  dist: './dist/'
+  dist: './dist/',
+  coverage: './coverage'
 };
 paths.tests = paths.src + '**/*.spec.js';
 
 class Tasks {
   
   static clean() {
-    return del([ paths.dist + '*' ]);
+    return del([paths.dist + '*', paths.coverage]);
   }
 
   static get buildSrc() {
@@ -29,8 +30,12 @@ class Tasks {
       .pipe(gulp.dest(paths.dist));
   }
 
-  static get npmTest() {
-    return shell.task('ava -sv', { ignoreErrors: true });
+  static get test() {
+    return shell.task('nyc --color -a ava', { ignoreErrors: true });
+  }
+
+  static get testAndCover() {
+    return shell.task('nyc --color -a -r=lcov -r=text ava', { ignoreErrors: true });
   }
 
   static watch() {
@@ -58,8 +63,8 @@ gulp.task('quickbuild', ['quickbuild:tests', 'quickbuild:src']);
 gulp.task('build', ['build:tests', 'build:src']);
 
 // Run the basic `npm test` command after a quick build...
-gulp.task('quicktest', Tasks.npmTest);
-gulp.task('test', ['build'],  Tasks.npmTest);
+gulp.task('quicktest', Tasks.test);
+gulp.task('test', ['build'],  Tasks.testAndCover);
 
 // Used for better development (watch with TAP output) (but also because we now are moving more files around)
 gulp.task('watch', ['build'], Tasks.watch);
@@ -71,8 +76,6 @@ gulp.task('publish', ['test'], Tasks.publish);
 ['patch', 'minor', 'major'].forEach(step => {
   gulp.task('bump:' + step, Tasks.bump(step));
 });
-
-gulp.task('commit', ['build'], Tasks.commit);
 
 // Default task...
 gulp.task('default', ['build']);

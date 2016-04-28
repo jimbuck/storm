@@ -1,12 +1,24 @@
 
 import {IStormRecord} from '../models';
-import {IDynamicParams} from '../../utils/data';
+import {ArgumentGenerator} from '../../utils/data';
 
 abstract class BaseSynthesizer
 {
-  abstract breed(gen: IDynamicParams[]): IDynamicParams[];
+  protected generationSize: number;
+  protected params: ArgumentGenerator;
 
-  abstract mutate(dna: IDynamicParams): IDynamicParams;
+  /**
+   * Initializes the generationSize and params properties.
+   */
+  constructor(options: {
+    generationSize: number,
+    params: ArgumentGenerator
+  }) {
+    this.generationSize = options.generationSize;
+    this.params = options.params;
+  }
+
+  abstract breed(gen: {}[]): {}[];
 }
 
 export default BaseSynthesizer;

@@ -1,0 +1,36 @@
+/**
+ * debug.js - This is a simple script that is used for debugging purposes only.
+ */
+"use strict";
+const storm_1 = require('./storm');
+// The equation we are trying to optimize!
+const quadratic = function (x, y) {
+    return -2 * Math.pow(y, 2) + 3 * Math.pow(x, 2) + 8 * x * y + -6 * x + 4 * y + 2;
+};
+let storm = new storm_1.Storm({
+    params: {
+        x: new storm_1.RandomFloat(-10, 10),
+        y: new storm_1.RandomFloat(-10, 10) // [-10, -9, ..., 9, 10]
+    },
+    generationSize: 50,
+    done: 2000,
+    run: (data) => {
+        // Just pass the parameters to the module to test.
+        return quadratic(data.x, data.y);
+    },
+    score: function (record) {
+        // Invert the absolute results (closer to zero is the goal)
+        return 1 / Math.abs(record.result);
+    }
+});
+let startTime = Date.now();
+storm
+    .start()
+    .then(results => {
+    let duration = Date.now() - startTime;
+    console.log('Min:', results.min);
+    console.log('Max:', results.max);
+    console.log(`Avg: ${results.avg} (${results.totalGenerations} generations in ${Math.floor(duration / 100) / 10}s)`);
+    //console.log('All:', results.all);
+});
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZXhhbXBsZS5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uL3NyYy9leGFtcGxlLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUNBOztHQUVHOztBQUVILHdCQUFpQyxTQUFTLENBQUMsQ0FBQTtBQUUzQywwQ0FBMEM7QUFDMUMsTUFBTSxTQUFTLEdBQUcsVUFBVSxDQUFRLEVBQUUsQ0FBUTtJQUM1QyxNQUFNLENBQUMsQ0FBQyxDQUFDLEdBQUMsSUFBSSxDQUFDLEdBQUcsQ0FBQyxDQUFDLEVBQUUsQ0FBQyxDQUFDLEdBQUcsQ0FBQyxHQUFDLElBQUksQ0FBQyxHQUFHLENBQUMsQ0FBQyxFQUFFLENBQUMsQ0FBQyxHQUFHLENBQUMsR0FBQyxDQUFDLEdBQUMsQ0FBQyxHQUFHLENBQUMsQ0FBQyxHQUFDLENBQUMsR0FBRyxDQUFDLEdBQUMsQ0FBQyxHQUFHLENBQUMsQ0FBQztBQUN2RSxDQUFDLENBQUM7QUFFRixJQUFJLEtBQUssR0FBRyxJQUFJLGFBQUssQ0FBQztJQUNwQixNQUFNLEVBQUU7UUFDTixDQUFDLEVBQUUsSUFBSSxtQkFBVyxDQUFDLENBQUMsRUFBRSxFQUFFLEVBQUUsQ0FBQztRQUMzQixDQUFDLEVBQUUsSUFBSSxtQkFBVyxDQUFDLENBQUMsRUFBRSxFQUFFLEVBQUUsQ0FBQyxDQUFDLHdCQUF3QjtLQUNyRDtJQUNELGNBQWMsRUFBRSxFQUFFO0lBQ2xCLElBQUksRUFBRSxJQUFJO0lBQ1YsR0FBRyxFQUFFLENBQUMsSUFBUztRQUNiLGtEQUFrRDtRQUNsRCxNQUFNLENBQUMsU0FBUyxDQUFDLElBQUksQ0FBQyxDQUFDLEVBQUUsSUFBSSxDQUFDLENBQUMsQ0FBQyxDQUFDO0lBQ25DLENBQUM7SUFDRCxLQUFLLEVBQUUsVUFBVSxNQUFNO1FBQ3JCLDJEQUEyRDtRQUMzRCxNQUFNLENBQUMsQ0FBQyxHQUFHLElBQUksQ0FBQyxHQUFHLENBQUMsTUFBTSxDQUFDLE1BQU0sQ0FBQyxDQUFDO0lBQ3JDLENBQUM7Q0FDRixDQUFDLENBQUM7QUFFSCxJQUFJLFNBQVMsR0FBRyxJQUFJLENBQUMsR0FBRyxFQUFFLENBQUM7QUFFM0IsS0FBSztLQUNGLEtBQUssRUFBRTtLQUNQLElBQUksQ0FBQyxPQUFPO0lBQ1gsSUFBSSxRQUFRLEdBQUcsSUFBSSxDQUFDLEdBQUcsRUFBRSxHQUFHLFNBQVMsQ0FBQztJQUN0QyxPQUFPLENBQUMsR0FBRyxDQUFDLE1BQU0sRUFBRSxPQUFPLENBQUMsR0FBRyxDQUFDLENBQUM7SUFDakMsT0FBTyxDQUFDLEdBQUcsQ0FBQyxNQUFNLEVBQUUsT0FBTyxDQUFDLEdBQUcsQ0FBQyxDQUFDO0lBQ2pDLE9BQU8sQ0FBQyxHQUFHLENBQUMsUUFBUSxPQUFPLENBQUMsR0FBRyxLQUFLLE9BQU8sQ0FBQyxnQkFBZ0IsbUJBQW1CLElBQUksQ0FBQyxLQUFLLENBQUMsUUFBUSxHQUFHLEdBQUcsQ0FBQyxHQUFHLEVBQUUsSUFBSSxDQUFDLENBQUM7SUFDcEgsbUNBQW1DO0FBQ3JDLENBQUMsQ0FBQyxDQUFDIn0=

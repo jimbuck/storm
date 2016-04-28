@@ -1,4 +1,5 @@
 
+import {shuffle} from '../../utils/array';
 import {IStormRecord} from '../models';
 import BaseSelection from './base';
 
@@ -56,21 +57,4 @@ export default class Tournament extends BaseSelection
 
     return this.tourney(winners);
   }
-}
-
-/**
- * Shuffles array in place.
- * @param {Array} a items The array containing the items.
- */
-function shuffle(source: any[]) {
-  let result = new Array(source.length);
-  let randomIndex: number, temp: any, end: number;
-  for (end = source.length; end; end -= 1) {
-    randomIndex = Math.floor(Math.random() * end);
-    temp = source[end - 1];
-    source[end - 1] = source[randomIndex];
-    source[randomIndex] = temp;
-  }
-
-  return source;
 }

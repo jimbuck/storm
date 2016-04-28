@@ -1,4 +1,5 @@
 import BaseSelector from './selectors/base';
+import BaseSynthesizer from './synthesizers/base';
 /**
  * Configuration Settings for a standard Storm instance.
  */
@@ -30,6 +31,10 @@ export interface IStormConfig {
      * Optional object for handling the selection of the best canidates from each generation.
      */
     selector?: BaseSelector;
+    /**
+     * Optional object for handling the crossover and mutation of canidates in a generation.
+     */
+    synthesizer?: BaseSynthesizer;
 }
 /**
  * An unabridged collection of records with aggregated data used at the end of each generation.
@@ -47,22 +52,6 @@ export declare class StormResult {
      * The average score across all generations.
      */
     avg: number;
-    /**
-     * The average score for the current generation.
-     */
-    avgGen: number;
-    /**
-     * The lowest scored record for the current generation.
-     */
-    minGen: IStormRecord;
-    /**
-     * The highest scored record for the current generation.
-     */
-    maxGen: IStormRecord;
-    /**
-     * All records for the current generation.
-     */
-    gen: IStormRecord[];
     /**
      * The lowest scored record across all generations.
      */

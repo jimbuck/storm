@@ -8,6 +8,9 @@ import time from './utils/time';
 import BaseSelector from './logic/selectors/base';
 import Tournament from './logic/selectors/tournament';
 
+import BaseSynthesizer from './logic/synthesizers/base';
+import StandardSynthesizer from './logic/synthesizers/standard';
+
 const identity = (thing: any) => { return thing };
 
 let trialId = 0;
@@ -35,10 +38,9 @@ export class Storm// extends Readable
   public score: (data: IStormRecord) => number;
   
   public generationSize: number;
-  private currentGeneration: number;
-  private results: StormResult;
 
   public selector: BaseSelector;
+  public synthesizer: BaseSynthesizer;
 
   /**
    * Creates a new Storm instance ready for execution.
@@ -90,7 +92,10 @@ export class Storm// extends Readable
       tournamentSize: Math.max(5, Math.floor(this.generationSize * 0.2))
     });
 
-    this.currentGeneration = 0;
+    this.synthesizer = options.synthesizer || new StandardSynthesizer({
+      generationSize: this.generationSize,
+      params: this.params
+    });
   }
 
   // public _read() {
@@ -113,14 +118,18 @@ export class Storm// extends Readable
       throw new Error(`'Once 'pipe' is called you cannot use promises!`);
     }
     this.isPromise = true;
-    this.currentGeneration = 0;
 
+    let currentGeneration = 0;
     let result = new StormResult();
-    result.add(await this.step());
-
-    while (!this.done(this.currentGeneration++, result)) {
-      result.add(await this.step(result.gen));
-    }
+    
+    let generation: IStormRecord[];
+    
+    do {
+      // Update the generation...
+      generation = await this.step(generation, currentGeneration);
+      // Add the results...
+      result.add(generation);
+    } while (!this.done(currentGeneration++, result));
 
     return result;
   }
@@ -128,7 +137,7 @@ export class Storm// extends Readable
   /**
    * Steps one generation forward, adding the data to this.results.
    */  
-  public async step(prevGen?: IStormRecord[]): Promise<IStormRecord[]>
+  public async step(prevGen?: IStormRecord[], currentGeneration?: number): Promise<IStormRecord[]>
   {
     let currentGen: IDynamicParams[];
 
@@ -153,7 +162,7 @@ export class Storm// extends Readable
         let timeDiff = time.current - startTime;
         record = {
           id: id,
-          generation: this.currentGeneration,
+          generation: currentGeneration,
           success: true,
           time: timeDiff,
           params,
@@ -166,7 +175,7 @@ export class Storm// extends Readable
         let timeDiff = time.current - startTime;
         record = {
           id: id,
-          generation: this.currentGeneration,
+          generation: currentGeneration,
           success: false,
           time: timeDiff,
           params,

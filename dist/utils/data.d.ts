@@ -1,5 +1,7 @@
 export interface IDataGenerator<T> {
     getValues(): Iterator<T>;
+    nextValue(): T;
+    nextValues(count: number): T[];
 }
 export interface IDynamicParams {
     [prop: string]: IDataGenerator<any>;
@@ -37,6 +39,7 @@ export declare class OrderedItem<T> extends BaseGenerator<T> {
     getValues(): IterableIterator<T>;
 }
 export declare class ArgumentGenerator extends BaseGenerator<IDynamicParams> {
+    [key: string]: any;
     private params;
     private props;
     private lookup;

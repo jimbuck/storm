@@ -4,7 +4,7 @@
     "module": "commonjs",
     "target": "es2015",
     "moduleResolution": "node",
-    "sourceMap": true,
+    "inlineSourceMap": true,
     "removeComments": false,
     "rootDir": "src",
     "outDir": "dist",

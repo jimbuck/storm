@@ -1,12 +1,12 @@
 import BaseSelector from './selectors/base';
+import BaseSynthesizer from './synthesizers/base';
 
 import {IDynamicParams} from '../utils/data';
 
 /**
  * Configuration Settings for a standard Storm instance.
  */
-export interface IStormConfig
-{
+export interface IStormConfig {
   /**
    * The is the data object that will be modified and provided during trials.
    */
@@ -39,50 +39,34 @@ export interface IStormConfig
    * Optional object for handling the selection of the best canidates from each generation.
    */  
   selector?: BaseSelector;
+
+  /**
+   * Optional object for handling the crossover and mutation of canidates in a generation.
+   */  
+  synthesizer?: BaseSynthesizer;
 }
 
 /**
  * An unabridged collection of records with aggregated data used at the end of each generation.
  */
-export class StormResult
-{
+export class StormResult {
 
   /**
    * The sum of all of the scores across all generations (used to find averages).
-   */  
+   */
   private totalScore: number;
 
   /**
    * The total number of generations.
-   */  
+   */
   public totalGenerations: number;
 
   /**
    * The average score across all generations.
    */
-  public get avg():number {
-    return this.totalScore / this.all.length;
+  public get avg(): number {
+    return this.all.length ? this.totalScore / this.all.length : 0;
   }
-
-  /**
-   * The average score for the current generation.
-   */  
-  public avgGen: number;
-
-  /**
-   * The lowest scored record for the current generation.
-   */
-  public minGen: IStormRecord;
-
-  /**
-   * The highest scored record for the current generation.
-   */
-  public maxGen: IStormRecord;
-
-  /**
-   * All records for the current generation.
-   */
-  public gen: IStormRecord[];
 
   /**
    * The lowest scored record across all generations.
@@ -104,44 +88,30 @@ export class StormResult
    */
   constructor() {
     this.all = [];
-    this.gen = [];
     this.totalGenerations = 0;
     this.totalScore = 0;
-    this.avgGen = 0;
     this.min = { score: Number.MAX_VALUE } as IStormRecord;
     this.max = { score: Number.MIN_VALUE } as IStormRecord;
-    this.minGen = { score: Number.MAX_VALUE } as IStormRecord;
-    this.maxGen = { score: Number.MIN_VALUE } as IStormRecord; 
   }
 
   /**
    * Adds a new generation to the result instance.
-   */  
+   */
   public add(results: IStormRecord[]) {
-    this.gen = [];
-    let genTotalScore = 0;
     results.forEach(result => {
-      genTotalScore += result.score;
+      this.totalScore += result.score;
+      this.all.push(result);
 
       if (result.score < this.min.score) {
         this.min = result;
       }
+
       if (result.score > this.max.score) {
         this.max = result;
       }
-      if (result.score < this.minGen.score) {
-        this.minGen = result;
-      }
-      if (result.score > this.maxGen.score) {
-        this.maxGen = result;
-      }
-      this.gen.push(result);
-      this.all.push(result);
     });
     this.totalGenerations++;
-    this.totalScore += genTotalScore;
-    this.avgGen = genTotalScore / results.length;
-  } 
+  }
 }
 
 /**

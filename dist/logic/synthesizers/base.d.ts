@@ -1,6 +1,14 @@
-import { IDynamicParams } from '../../utils/data';
+import { ArgumentGenerator } from '../../utils/data';
 declare abstract class BaseSynthesizer {
-    abstract breed(gen: IDynamicParams[]): IDynamicParams[];
-    abstract mutate(dna: IDynamicParams): IDynamicParams;
+    protected generationSize: number;
+    protected params: ArgumentGenerator;
+    /**
+     * Initializes the generationSize and params properties.
+     */
+    constructor(options: {
+        generationSize: number;
+        params: ArgumentGenerator;
+    });
+    abstract breed(gen: {}[]): {}[];
 }
 export default BaseSynthesizer;

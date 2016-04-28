@@ -10,15 +10,17 @@ import {
 const toArray = require('stream-to-array'); // required for older modules...
 
 let options;
-const EXPECTED_RESULT_COUNT = 18; // Derived from params below...
+const GENERATION_SIZE = 5;
+const GENERATION_LIMIT = 10;
+const EXPECTED_RESULT_COUNT = GENERATION_SIZE * GENERATION_LIMIT;
 const DELAY = 50;
 
 test.beforeEach(() => {
 
   // Create a basic set of options to use for testing.  
   options = {
-    generationSize: 5,
-    done: 10,
+    generationSize: GENERATION_SIZE,
+    done: GENERATION_LIMIT,
     params: {
       a: new RandomFloat(-1, 1),
       b: new RandomInteger(-10, 10),
@@ -82,8 +84,8 @@ test.skip('Storm<Promise> run should accept return values', t => {
   let storm = new Storm(options);
 
   return storm.start().then(results => {
-    t.true(results instanceof Array);
-    t.is(results.length, EXPECTED_RESULT_COUNT);
+    t.true(results.all instanceof Array);
+    t.is(results.all.length, EXPECTED_RESULT_COUNT);
   });
 });
 
@@ -100,8 +102,8 @@ test.skip('Storm<Promise> run should accept promises', t => {
   let storm = new Storm(options);
 
   return storm.start().then(results => {
-    t.true(results instanceof Array);
-    t.is(results.length, EXPECTED_RESULT_COUNT);
+    t.true(results.all instanceof Array);
+    t.is(results.all.length, EXPECTED_RESULT_COUNT);
   });
 });
 
@@ -118,9 +120,9 @@ test.skip('Storm<Promise> run should handle exceptions', t => {
   let storm = new Storm(options);
 
   return storm.start().then(results => {
-    t.true(results instanceof Array);
-    t.true(results[0].result instanceof Error);
-    t.is(results.length, EXPECTED_RESULT_COUNT);
+    t.true(results.all instanceof Array);
+    t.true(results.all[0].result instanceof Error);
+    t.is(results.all.length, EXPECTED_RESULT_COUNT);
   });
 });
 
@@ -136,7 +138,7 @@ test.skip('Storm<Stream> run should accept return values', t => {
 });
 
 test.skip('Storm<Stream> run should accept promises', t => {
-
+  
   options.run = (params) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
