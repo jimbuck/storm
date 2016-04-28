@@ -1,10 +1,11 @@
 #Storm
-Survival of the fittest made easy!
+Because thinking is hard.
 
 [![Build Status](https://travis-ci.org/JimmyBoh/storm.svg?branch=master)](https://travis-ci.org/JimmyBoh/storm)
+[![Coverage Status](https://coveralls.io/repos/github/JimmyBoh/storm/badge.svg?branch=master)](https://coveralls.io/github/JimmyBoh/storm?branch=master)
+[![NPM Dependencies](https://david-dm.org/JimmyBoh/storm.svg)](https://david-dm.org/JimmyBoh/storm)
 
-Solving problems is hard.
-Whether it is building a thorough dataset for brute force approaches or managing a huge number of asynchronous actions, most of your time is spent **preparing** to solve the problem instead of just solving it.
+Problem solving is not easy. Whether it is building a thorough dataset for brute force approaches or managing a huge number of asynchronous actions, most of your time is spent **preparing** to solve the problem instead of just solving it.
 But don't worry! Fortunately for you computers are _very_ good at math.
 And better methods for finding optimal solutions are all around us (and with far better results).
 
@@ -63,8 +64,8 @@ storm
  1. `npm i -g ava typescript gulp`
  2. `npm i`
  4. `gulp watch`
- 5. Make changes and **write tests**!!!
- 6. Send pull request :sunglasses:
+ 5. Make changes and **write tests**.
+ 6. Send pull request! :sunglasses:
  
 ## License:
  
