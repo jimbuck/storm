@@ -58,7 +58,7 @@ gulp.task('quickbuild', ['quickbuild:tests', 'quickbuild:src']);
 gulp.task('build', ['build:tests', 'build:src']);
 
 // Run the basic `npm test` command after a quick build...
-gulp.task('quicktest', ['quickbuild'], Tasks.npmTest);
+gulp.task('quicktest', Tasks.npmTest);
 gulp.task('test', ['build'],  Tasks.npmTest);
 
 // Used for better development (watch with TAP output) (but also because we now are moving more files around)
