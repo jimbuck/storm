@@ -11,34 +11,38 @@ import {
   ArgumentGenerator
 } from './data';
 
-import {TestGenerator} from '../test-data';
-
 // BaseGenerator ####################################
 
 test('BaseGenerator nextValue should auto-instantiate generator', t => {
-  const tg = new TestGenerator();
-
-  tg.nextValue();
-  t.true(tg.hasIterator());
+  const bg = new BaseGenerator();
+  bg.getValues = function* () { yield 42; };
+  
+  bg.nextValue();
+  t.not(typeof bg.iterator, 'undefined');
 });
 
 test('BaseGenerator nextValue should return the next value', t => {
   const EXPECTED_VALUE = 42;
-  const tg = new TestGenerator();
+  const bg = new BaseGenerator();
 
-  tg.getValues = function* () { yield EXPECTED_VALUE; };
+  bg.getValues = function* () { yield EXPECTED_VALUE; };
 
-  let result = tg.nextValue();
+  let result = bg.nextValue();
   t.is(result, EXPECTED_VALUE);
 });
 
 test('BaseGenerator nextValues should return list of values', t => {
   const SOURCE_VALUES = [6, 0, 1, 4];
   const EXPECTED_VALUES = [6, 0, 1];
+  
+  const bg = new BaseGenerator();
+  bg.getValues = function* () {
+    for (let i = 0; i < SOURCE_VALUES.length; i++) {
+      yield SOURCE_VALUES[i];
+    }
+  };
 
-  const oi = new OrderedItem(SOURCE_VALUES);
-
-  let result = oi.nextValues(3);
+  let result = bg.nextValues(3);
   t.deepEqual(result, EXPECTED_VALUES);
 });
 
@@ -46,9 +50,14 @@ test('BaseGenerator nextValues should wrap list of values if greater than source
   const SOURCE_VALUES = [6, 0, 1, 4];
   const EXPECTED_VALUES = [6, 0, 1, 4, 6, 0];
 
-  const oi = new OrderedItem(SOURCE_VALUES);
+  const bg = new BaseGenerator();
+  bg.getValues = function* () {
+    for (let i = 0; ;i=(i+1)%SOURCE_VALUES.length) {
+      yield SOURCE_VALUES[i];
+    }
+  };
 
-  let result = oi.nextValues(6);
+  let result = bg.nextValues(6);
   t.deepEqual(result, EXPECTED_VALUES);
 });
 

@@ -1,11 +1,11 @@
 
-import {IScorable} from '../models';
+import {IStormRecord} from '../models';
 
-abstract class BaseSelection
+abstract class BaseSelector
 {
-  abstract select(gen: IScorable[], count: number): IScorable[];
+  abstract select(gen: IStormRecord[], count: number): IStormRecord[];
 
-  protected compare(a: IScorable, b: IScorable) {
+  protected compare(a: IStormRecord, b: IStormRecord) {
     if (!a && !b) {
       throw new Error(`Must pass at least one result!`);
     }
@@ -35,4 +35,4 @@ abstract class BaseSelection
   }
 }
 
-export default BaseSelection;
+export default BaseSelector;

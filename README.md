@@ -1,5 +1,7 @@
-# Storm [![Build Status](https://travis-ci.org/JimmyBoh/storm.svg?branch=master)](https://travis-ci.org/JimmyBoh/storm)
-An advanced optimization engine for NodeJS.
+#Storm
+Survival of the fittest made easy!
+
+[![Build Status](https://travis-ci.org/JimmyBoh/storm.svg?branch=master)](https://travis-ci.org/JimmyBoh/storm)
 
 Solving problems is hard.
 Whether it is building a thorough dataset for brute force approaches or managing a huge number of asynchronous actions, most of your time is spent **preparing** to solve the problem instead of just solving it.
@@ -14,25 +16,27 @@ When it's over, you'll get a report that includes total tests run, timing data, 
 ## Example:
 
 ```js
-const {Storm, RandomInteger} from 'storm';
+import {Storm, RandomInteger} from 'storm';
 
 // The equation we are trying to optimize!
-const quadratic = function(x, y){
-  return -2*Math.pow(y,2) + 3*Math.pow(x,2) + 8*x*y + -6*x + 4*y + 2;
+const quadratic = function (x, y) {
+  return -2*Math.pow(y, 2) + 3*Math.pow(x, 2) + 8*x*y + -6*x + 4*y + 2;
 };
 
 let storm = new Storm({
   params: {
-    x: RandomInteger(1, 20),     // [1,2, ..., 20]
-    y: RandomInteger(-10, 10, 2) // [-10, -8, ..., 20]
+    x: new RandomInteger(1, 20),     // [1,2, ..., 20]
+    y: new RandomInteger(-10, 10) // [-10, -8, ..., 20]
   },
+  generationSize: 10, // Work with 10 solutions at a time.
+  limit: 10, // limit to 10 generations (may also be a function)
   run: (params) => {
     // Just pass the parameters to the module to test.
     return quadratic(params.x, params.y);
   },
-  score: function(result) {
+  score: function (result) {
     // Invert the absolute results (closer to zero is the goal)
-    return 1/Math.abs(result);
+    return 1 / Math.abs(result);
   }
 });
 
@@ -52,3 +56,15 @@ storm
  - Stream enabled (perfect for massive data-sets)
  - Built-in data tools for defining characteristics about the parameters
  - Automatically handles crossover and mutation (but can be overridden)
+ 
+## Contribute
+ 
+ 0. Fork it
+ 1. `npm i -g ava typescript gulp`
+ 2. `npm i`
+ 4. `gulp watch`
+ 5. Make changes and **write tests**!!!
+ 6. Send pull request :sunglasses:
+## License:
+ 
+MIT

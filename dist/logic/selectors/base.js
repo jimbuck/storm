@@ -1,5 +1,5 @@
 "use strict";
-class BaseSelection {
+class BaseSelector {
     compare(a, b) {
         if (!a && !b) {
             throw new Error(`Must pass at least one result!`);
@@ -25,5 +25,5 @@ class BaseSelection {
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = BaseSelection;
+exports.default = BaseSelector;
 //# sourceMappingURL=base.js.map

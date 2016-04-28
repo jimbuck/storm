@@ -18,7 +18,7 @@ test.beforeEach(() => {
   // Create a basic set of options to use for testing.  
   options = {
     generationSize: 5,
-    limit: 10,
+    done: 10,
     params: {
       a: new RandomFloat(-1, 1),
       b: new RandomInteger(-10, 10),
@@ -37,16 +37,43 @@ test('Storm returns a constructor function', t => {
   t.is(typeof Storm, 'function');
 });
 
-test(`Storm allows 'limit' to be a function`, t => {
+test('Storm requires an options object', t => {
+  t.throws(() => {
+    new Storm();
+  }, `Options must be specified!`);
+});
+
+test(`Storm requires a 'params' definition`, t => {
+  delete options.params;
+  t.throws(() => {
+    new Storm(options);
+  }, `'params' must be specified!`);
+});
+
+test(`Storm requires a 'run' function`, t => {
+  delete options.run;
+  t.throws(() => {
+    new Storm(options);
+  }, `'run' must be specified!`);
+});
+
+test(`Storm requires a 'done' property`, t => {
+  delete options.done;
+  t.throws(() => {
+    new Storm(options);
+  }, `'done' must be specified!`);
+});
+
+test(`Storm allows 'done' to be a function`, t => {
   let limitTicker = 0;
 
-  options.limit = function (i) {
+  options.done = function (i) {
     return i >= 3;
   };
   let storm = new Storm(options);
 
-  t.is(typeof storm.limit, 'function');
-  t.is(storm.limit, options.limit);
+  t.is(typeof storm.done, 'function');
+  t.is(storm.done, options.done);
 });
 
 // Promise-based Tests....

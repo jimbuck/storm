@@ -14,7 +14,7 @@ export abstract class BaseGenerator<T>
   }
 
   public nextValues(count: number): T[] {
-    let vals = [];
+    let vals: T[] = [];
     for (let i = 0; i < count; i++) {
       vals.push(this.nextValue());
     }
@@ -116,9 +116,9 @@ export class OrderedItem<T> extends BaseGenerator<T>
 
 export class ArgumentGenerator extends BaseGenerator<any>
 {
-  private params: {};
+  private params: any;
   private props: string[];
-  private lookup: {};
+  private lookup: any;
 
   constructor(params: {}) {
     super();
@@ -142,7 +142,7 @@ export class ArgumentGenerator extends BaseGenerator<any>
 
   public * getValues() {
     while (true) {
-      let obj = {};
+      let obj: any = {};
 
       this.props.forEach(prop => {
         obj[prop] = this.lookup[prop].next().value;

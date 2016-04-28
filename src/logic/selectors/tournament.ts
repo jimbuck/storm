@@ -1,5 +1,5 @@
 
-import {IScorable} from '../models';
+import {IStormRecord} from '../models';
 import BaseSelection from './base';
 
 export default class Tournament extends BaseSelection
@@ -12,9 +12,9 @@ export default class Tournament extends BaseSelection
     this.tournamentSize = opts.tournamentSize;
   }
 
-  public select(gen: IScorable[], count: number) {
+  public select(gen: IStormRecord[], count: number) {
     let availablePlayers = gen.slice();
-    let selection = [];
+    let selection: IStormRecord[] = [];
 
     for (let i = 0; i < count; i++){
       // Copy, shuffle, and limit the players array.
@@ -29,13 +29,13 @@ export default class Tournament extends BaseSelection
     return selection;
   }
 
-  protected tourney(players: IScorable[]) {
+  protected tourney(players: IStormRecord[]): IStormRecord {
     //console.log(`\nStarting tournament with ${players.length} players!`, players);
     if (players.length === 1) {
       return players[0];
     }
 
-    let winners = [];
+    let winners: IStormRecord[] = [];
 
     while (players.length > 0)
     {
@@ -62,9 +62,9 @@ export default class Tournament extends BaseSelection
  * Shuffles array in place.
  * @param {Array} a items The array containing the items.
  */
-function shuffle(source) {
+function shuffle(source: any[]) {
   let result = new Array(source.length);
-  let randomIndex, temp, end;
+  let randomIndex: number, temp: any, end: number;
   for (end = source.length; end; end -= 1) {
     randomIndex = Math.floor(Math.random() * end);
     temp = source[end - 1];

@@ -1,13 +1,16 @@
 import {Readable} from 'stream';
 
+import {IStormConfig, IStormRecord, StormResult} from './logic/models';
 import {ArgumentGenerator} from './utils/data';
 
 import time from './utils/time';
-import PromiseHelper from './utils/promise';
 
-const identity = (result) => {return result};
+import BaseSelector from './logic/selectors/base';
+import Tournament from './logic/selectors/tournament';
 
-let taskId = 0;
+const identity = (thing: any) => { return thing };
+
+let trialId = 0;
 
 // Expose these helper classes.
 export {
@@ -17,53 +20,55 @@ export {
   OrderedItem
 } from './utils/data';
 
-export interface IStormConfig
+export interface DoneFunction
 {
-  params: {};
-  
-  limit: ((i: number) => boolean) | number;
-  
-  generationSize: number;
-  
-  run: ((params: any) => any);
-
-  score?: (data: any) => number;
+  (gen: number, current: StormResult): boolean;
 }
 
+/**
+ * An advanced optimization library.
+ */
 export class Storm extends Readable
 {
   public params: ArgumentGenerator;
-  public limit: ((i: number) => boolean) | number;
+  public done: DoneFunction;
 
   private isStream: boolean;
   private isPromise: boolean;
   public run: (params: any) => PromiseLike<any>;
   public score: (data: any) => number;
   
-  private results: any[];
+  public generationSize: number;
   private currentIteration: number;
+  private results: StormResult;
 
+  public selector: BaseSelector;
+
+  /**
+   * Creates a new Storm instance ready for execution.
+   * @param {IStormConfig} options - An object hash containing configuration settings.
+   */  
   constructor(options: IStormConfig)
   {
-    // if (typeof options === 'undefined') {
-    //   throw new Error(`Options must be specified!`);
-    // }
+    if (typeof options === 'undefined') {
+      throw new Error(`Options must be specified!`);
+    }
 
-    // if (typeof options.params === 'undefined') {
-    //   throw new Error(`'params' must be specified!`);
-    // }
+    if (typeof options.params === 'undefined') {
+      throw new Error(`'params' must be specified!`);
+    }
 
-    // if (typeof options.limit === 'undefined') {
-    //   throw new Error(`'limit' must be specified!`);
-    // }
+    if (typeof options.done !== 'number' && typeof options.done !== 'function') {
+      throw new Error(`'done' must be specified!`);
+    }
 
-    // if (typeof options.generationSize === 'undefined') {
-    //   throw new Error(`'generationSize' must be specified!`);
-    // }
+    if (typeof options.generationSize === 'undefined') {
+      throw new Error(`'generationSize' must be specified!`);
+    }
 
-    // if (typeof options.run !== 'function') {
-    //   throw new Error(`'run' must be specified!`);
-    // }
+    if (typeof options.run !== 'function') {
+      throw new Error(`'run' must be specified!`);
+    }
 
     super({ objectMode: true });
     
@@ -71,109 +76,109 @@ export class Storm extends Readable
 
     this.isStream = false;
     this.isPromise = false;
-    this.limit = options.limit;
     
-    if (typeof options.limit === 'number') {
-      this.limit = (function (num) {
-        return function (i) {
-          return i >= num;
-        };
-      })(options.limit);
+    if (typeof options.done === 'number') {
+      let doneNum = options.done as number;
+      this.done = (gen: number, result: StormResult) => {
+        return gen >= doneNum;
+      };
+    } else {
+      this.done = options.done as DoneFunction;
     }
+
+    this.selector = options.selector || new Tournament({
+      tournamentSize: Math.max(5, Math.floor(this.generationSize * 0.2))
+    });
   }
 
-  _read() {
+  public _read() {
     if (this.isPromise) {
       throw new Error(`'Once 'start' is called you cannot stream!`);
     }
     this.isStream = true;
     
-    this.step().then(result => {
-      if (result) {
-        this.push(result);
+    this.step().then((generation: IStormRecord[]) => {
+      if (generation) {
+        generation.forEach(result => this.push(result));
       } else {
         this.push(null);
       }
     });  
   }
 
-  start() {
+  public start(): PromiseLike<StormResult> {
     if (this.isStream) {
       throw new Error(`'Once 'pipe' is called you cannot use promises!`);
     }
     this.isPromise = true;
     
-    this.results = [];
+    this.results = new StormResult();
     return this._stepUntilDone();
   }
 
-  _stepUntilDone() {
-    return this.step().then(result => {
-      if (result) {
-        this.results.push(result);
-        return this._stepUntilDone();
-      } else {
-        return this.results;
-      }
-    });
+  private async _stepUntilDone(): Promise<StormResult> {
+    let generation = await this.step();
+    
+    this.results.add(generation);
+    
+    if (this.done(this.currentIteration, this.results)) {
+      return this.results;
+    } else {
+      return await this._stepUntilDone();
+    }
   }
 
-  // TODO: Convert to run 1 generation at a time...  
-  step() {
-    let id = taskId++;
-    //console.log(`Starting task ${id}...`);
-    let unit = this.params.nextValue();
+  /**
+   * Steps one generation forward, adding the data to this.results.
+   */ 
+  private async step(): Promise<IStormRecord[]> {
 
-    // Stop when all units have been processed...    
-    if (typeof unit === 'undefined') {     
-      return Promise.resolve(null);
-    }
+    let generation: IStormRecord[] = [];
 
-    let startTime = time.current;
-    let p;
+    for (let i = 0; i < this.generationSize; i++) {
+      let id = trialId++;
+      //console.log(`Starting task ${id}...`);
+      let unit = this.params.nextValue();
 
-    try {
-      p = Promise.resolve(this.run.call(unit, unit));
-    } catch (ex) {
-      p = Promise.reject(ex);
-    }
+      // Stop when all units have been processed...    
+      if (typeof unit === 'undefined') {
+        return null;
+      }
 
-    return p
-      .then(result => {
-        //console.log(`Resolved task ${id}! ${JSON.stringify(result)}`);
+      let startTime = time.current;
+
+      let record: IStormRecord;
+      
+      try {
+        let result = await this.run.call(unit, unit);
         let timeDiff = time.current - startTime;
-        let score;
-        try {
-          score = this.score(result);
-        } catch (ex) {
-          ex.innerMessage = ex.message;
-          ex.message = `'storm.score' failed!`;
-          ex.data = result;
-
-          throw ex;
-        }
-
-        return {
+        record = {
           id: id,
           iteration: this.currentIteration,
           success: true,
           time: timeDiff,
           params: unit,
           result,
-          score: this.score(result)
+          score: 0
         };
-      }).catch(err => {
-        //console.log(`Rejected task ${id}!`);
+        record.score = this.score(record) || 0;
+                
+      } catch (ex) {
         let timeDiff = time.current - startTime;
-        return {
+        record = {
           id: id,
           iteration: this.currentIteration,
           success: false,
           time: timeDiff,
           params: unit,
-          result: err,
+          result: ex,
           score: null // Should this be zero? -1?
         };
-      });
-  }  
+      }
+
+      generation.push(record);
+    }
+
+    return generation;
+  }
 }

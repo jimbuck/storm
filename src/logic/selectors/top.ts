@@ -1,5 +1,5 @@
 
-import {IScorable} from '../models';
+import {IStormRecord} from '../models';
 import BaseSelection from './base';
 
 export default class Top extends BaseSelection
@@ -8,7 +8,7 @@ export default class Top extends BaseSelection
     super();
   }
   
-  select(gen: IScorable[], count: number): IScorable[] {    
+  select(gen: IStormRecord[], count: number): IStormRecord[] {    
     let players = gen.slice();
     
     players.sort(function (a, b) {
