@@ -1,5 +1,5 @@
 
-import {IDataGenerator, IDynamicParams, ArgumentGenerator} from '../../utils/data';
+import {IDataGenerator, ArgumentGenerator} from '../../utils/data';
 import {shuffle, random} from '../../utils/array';
 import BaseSynthesizer from './base';
 
@@ -31,8 +31,8 @@ export default class StandardSynthesizer extends BaseSynthesizer
 
       let child: any = {};
 
-      for (let prop in props) {
-        child[prop] = (Math.random() > 0.5 ? parentA : parentB)[prop];
+      for (let prop of props) {
+        child[prop] = (Math.random() > 0.5) ? parentA[prop] : parentB[prop];
       }
 
       if (Math.random() < 0.25) {

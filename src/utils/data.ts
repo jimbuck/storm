@@ -9,11 +9,6 @@ export interface IDataGenerator<T>
   nextValues(count: number): T[];
 }
 
-export interface IDynamicParams
-{
-  [prop: string]: IDataGenerator<any>;
-}
-
 export abstract class BaseGenerator<T> implements IDataGenerator<T>
 {
   protected iterator: Iterator<T>;
@@ -129,15 +124,15 @@ export class OrderedItem<T> extends BaseGenerator<T>
   }
 }
 
-export class ArgumentGenerator extends BaseGenerator<IDynamicParams>
+export class ArgumentGenerator extends BaseGenerator<any>
 {
   [key: string]: any;
 
-  private params: IDynamicParams;
+  private params: any;
   private props: string[];
   private lookup: Map<string, Iterator<any>>;
 
-  constructor(params: IDynamicParams) {
+  constructor(params: any) {
     super();
 
     if (!params) {

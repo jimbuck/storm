@@ -12,11 +12,11 @@ const quadratic = function (x:number, y:number) {
 
 let storm = new Storm({
   params: {
-    x: new RandomFloat(-10, 10),  // [1, 2, ..., 20]
-    y: new RandomFloat(-10, 10) // [-10, -9, ..., 9, 10]
+    x: new RandomFloat(-100, 100),  // [1, 2, ..., 20]
+    y: new RandomFloat(-100, 100) // [-10, -9, ..., 9, 10]
   },
-  generationSize: 50, // Work with 10 solutions at a time.
-  done: 2000, // limit to 10 generations (may also be a function)
+  generationSize: 100, // Work with 10 solutions at a time.
+  done: 5000, // limit to 10 generations (may also be a function)
   run: (data: any) => {
     // Just pass the parameters to the module to test.
     return quadratic(data.x, data.y);
@@ -35,6 +35,5 @@ storm
     let duration = Date.now() - startTime;
     console.log('Min:', results.min);
     console.log('Max:', results.max);
-    console.log(`Avg: ${results.avg} (${results.totalGenerations} generations in ${Math.floor(duration / 100) / 10}s)`);
-    //console.log('All:', results.all);
+    console.log(`(${results.totalGenerations} generations in ${Math.floor(duration / 100) / 10}s)`);
   });

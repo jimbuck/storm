@@ -1,8 +1,6 @@
 import BaseSelector from './selectors/base';
 import BaseSynthesizer from './synthesizers/base';
 
-import {IDynamicParams} from '../utils/data';
-
 /**
  * Configuration Settings for a standard Storm instance.
  */

@@ -20,11 +20,15 @@ test(`BaseSelector 'compare' returns the defined result if the other is undefine
   const PLAYER_A = {
     score: 3
   };
-  let PLAYER_B;
+  let PLAYER_B = {
+    score: 7
+  };
 
-  let result = t.context.ts.compare(PLAYER_A, PLAYER_B);
-
-  t.is(result, PLAYER_A);
+  let resultA = t.context.ts.compare(PLAYER_A, null);
+  let resultB = t.context.ts.compare(null, PLAYER_B);
+  
+  t.is(resultA, PLAYER_A);
+  t.is(resultB, PLAYER_B);
 });
 
 test(`BaseSelector 'compare' returns the defined result if the other score is undefined.`, t => {
@@ -36,11 +40,29 @@ test(`BaseSelector 'compare' returns the defined result if the other score is un
   t.is(result, PLAYER_A);
 });
 
-test(`BaseSelector 'compare'  returns the higher of two scored players`, t => {
+test(`BaseSelector 'compare' returns the higher of two scored players`, t => {
   const PLAYER_A = {score: 3};
   const PLAYER_B = {score: 8};
 
   let result = t.context.ts.compare(PLAYER_A, PLAYER_B);
 
   t.is(result, PLAYER_B);
+});
+
+test(`BaseSelector 'compare' returns the faster of two same-scored players`, t => {
+  const PLAYER_A = { score: 3, time: 42 };
+  const PLAYER_B = { score: 3, time: 2 };
+
+  let result = t.context.ts.compare(PLAYER_A, PLAYER_B);
+
+  t.is(result, PLAYER_B);
+});
+
+test(`BaseSelector 'compare' returns the first of same score and timed players`, t => {
+  const PLAYER_A = { score: 3, time: 2 };
+  const PLAYER_B = { score: 3, time: 2 };
+
+  let result = t.context.ts.compare(PLAYER_A, PLAYER_B);
+
+  t.is(result, PLAYER_A);
 });

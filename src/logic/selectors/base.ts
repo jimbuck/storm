@@ -30,8 +30,8 @@ abstract class BaseSelector
       return b;
     }
   
-    // Otherwise return the first one...    
-    return a;
+    // Otherwise return the faster one, (or the first one if they are equal)...    
+    return b.time < a.time ? b : a;
   }
 }
 

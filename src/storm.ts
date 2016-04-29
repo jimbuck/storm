@@ -1,7 +1,7 @@
 import {Readable} from 'stream';
 
 import {IStormConfig, IStormRecord, StormResult} from './logic/models';
-import {ArgumentGenerator, IDynamicParams} from './utils/data';
+import {ArgumentGenerator} from './utils/data';
 
 import time from './utils/time';
 
@@ -139,10 +139,10 @@ export class Storm// extends Readable
    */  
   public async step(prevGen?: IStormRecord[], currentGeneration?: number): Promise<IStormRecord[]>
   {
-    let currentGen: IDynamicParams[];
+    let currentGen: any[];
 
     if (prevGen) {
-      currentGen = this.params.nextValues(this.generationSize);//this.mutator.next(prevGen);
+      currentGen = this.synthesizer.breed(prevGen.map(p => p.params));
     } else {
       currentGen = this.params.nextValues(this.generationSize);
     }
@@ -151,7 +151,7 @@ export class Storm// extends Readable
     
     for (let i = 0; i < currentGen.length; i++){
       let id: number = trialId++;
-      let params: IDynamicParams = currentGen[i];
+      let params: any = currentGen[i];
       
       let startTime: number = time.current;
 
