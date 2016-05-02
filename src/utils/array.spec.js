@@ -80,5 +80,4 @@ test(`'random' should return a random element`, t => {
 
   t.is(typeof result1, 'number');
   t.is(typeof result2, 'number');
-  t.not(result1, result2);
 });
