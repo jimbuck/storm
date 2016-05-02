@@ -3,6 +3,10 @@
  * Returns a random element from the array.
  */
 export function random<T>(source: T[]): T {
+  if (!source || source.length === 0) {
+    throw new Error(`'source' must have at least one element!`);
+  }
+
   return source[Math.floor(Math.random() * source.length)];
 }
 
@@ -21,4 +25,13 @@ export function shuffle<T>(source: T[]): T[] {
   }
 
   return source;
+}
+
+/**
+ * Sorts the provided array by a particular property.
+ */
+export function sort(source: any[], prop: string, desc?: boolean) {
+  return source.sort((a, b) => {
+    return (a[prop] - b[prop]) * (desc ? -1 : 1);
+  });
 }

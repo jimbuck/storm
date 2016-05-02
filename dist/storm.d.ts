@@ -1,9 +1,11 @@
 import { IStormConfig, IStormRecord, StormResult } from './logic/models';
 import { ArgumentGenerator } from './utils/data';
-import BaseSelector from './logic/selectors/base';
-import BaseSynthesizer from './logic/synthesizers/base';
+import { ISelector } from './logic/selectors/base';
+import { ISynthesizer } from './logic/synthesizers/base';
 export { OrderedNumber, RandomInteger, RandomFloat, OrderedItem } from './utils/data';
 export { IStormConfig, IStormRecord, StormResult } from './logic/models';
+export { ISelector } from './logic/selectors/base';
+export { BaseSynthesizer, ISynthesizer } from './logic/synthesizers/base';
 export interface DoneFunction {
     (gen: number, current: StormResult): boolean;
 }
@@ -18,8 +20,8 @@ export declare class Storm {
     run: (params: any) => PromiseLike<any>;
     score: (data: IStormRecord) => number;
     generationSize: number;
-    selector: BaseSelector;
-    synthesizer: BaseSynthesizer;
+    selector: ISelector;
+    synthesizer: ISynthesizer<any>;
     /**
      * Creates a new Storm instance ready for execution.
      * @param {IStormConfig} options - An object hash containing configuration settings.

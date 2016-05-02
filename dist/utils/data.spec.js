@@ -165,6 +165,11 @@ test('RandomNumber should allow integers only', t => {
 
 // OrderedItem ######################################
 
+test('OrderedItem should require an array during construction', t => {
+  t.throws(() => new OrderedItem(), `'values' is required!`);
+  t.notThrows(() => new OrderedItem([1]));
+});
+
 test('OrderedItem should require an array with at least one element', t => {
   t.throws(() => new OrderedItem([]), `'values' must have at least one element!`);
   t.notThrows(() => new OrderedItem([1]));
@@ -182,6 +187,12 @@ test('OrderedItem should iterate through each element', t => {
 });
 
 // ArgumentGenerator ############################
+
+test(`ArgumentGenerator requires 'params' during construction`, t => {
+  t.throws(
+    () => new ArgumentGenerator(),
+    `'params' is required!`);
+})
 
 test('ArgumentGenerator requires at least one property on param', t => {
   const PARAMS = {};

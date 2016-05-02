@@ -1,12 +1,16 @@
 import { ArgumentGenerator } from '../../utils/data';
-import BaseSynthesizer from './base';
-export default class StandardSynthesizer extends BaseSynthesizer {
+import { IStormRecord } from '../models';
+import { BaseSynthesizer } from './base';
+export default class StandardSynthesizer<T> extends BaseSynthesizer<T> {
+    mutationRate: number;
     /**
      * Creates a standard synthesizer, randomly mixing parents with a small chance of mutation.
      */
-    constructor(options: {
+    constructor(opts: {
         generationSize: number;
+        clone?: number;
         params: ArgumentGenerator;
+        mutationRate?: number;
     });
-    breed(gen: any[]): any[];
+    cross(parentA: IStormRecord, parentB: IStormRecord): T;
 }

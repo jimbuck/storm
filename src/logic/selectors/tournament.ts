@@ -1,13 +1,13 @@
 
 import {shuffle} from '../../utils/array';
 import {IStormRecord} from '../models';
-import BaseSelection from './base';
+import {BaseSelector} from './base';
 
-export default class Tournament extends BaseSelection
+export default class Tournament extends BaseSelector
 {
   public tournamentSize: number;
 
-  constructor(opts:{tournamentSize:number}) {
+  constructor(opts:{tournamentSize:number, clone?: number}) {
     super();
     
     this.tournamentSize = opts.tournamentSize;

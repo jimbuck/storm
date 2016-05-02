@@ -9,16 +9,15 @@ import {
 
 const toArray = require('stream-to-array'); // required for older modules...
 
-let options;
 const GENERATION_SIZE = 5;
 const GENERATION_LIMIT = 10;
 const EXPECTED_RESULT_COUNT = GENERATION_SIZE * GENERATION_LIMIT;
-const DELAY = 50;
+const DELAY = 200;
 
-test.beforeEach(() => {
+test.beforeEach(t => {
 
   // Create a basic set of options to use for testing.  
-  options = {
+  t.context.options = {
     generationSize: GENERATION_SIZE,
     done: GENERATION_LIMIT,
     params: {
@@ -33,6 +32,8 @@ test.beforeEach(() => {
       return result; // Convert results into scores (if not already numerical)
     }
   }
+
+  t.context.storm = new Storm(t.context.options);
 });
 
 test('Storm returns a constructor function', t => {
@@ -46,52 +47,53 @@ test('Storm requires an options object', t => {
 });
 
 test(`Storm requires a 'params' definition`, t => {
-  delete options.params;
+  delete t.context.options.params;
   t.throws(() => {
-    new Storm(options);
+    new Storm(t.context.options);
   }, `'params' must be specified!`);
 });
 
 test(`Storm requires a 'run' function`, t => {
-  delete options.run;
+  delete t.context.options.run;
   t.throws(() => {
-    new Storm(options);
+    new Storm(t.context.options);
   }, `'run' must be specified!`);
 });
 
 test(`Storm requires a 'done' property`, t => {
-  delete options.done;
+  delete t.context.options.done;
   t.throws(() => {
-    new Storm(options);
+    new Storm(t.context.options);
   }, `'done' must be specified!`);
 });
 
 test(`Storm allows 'done' to be a function`, t => {
   let limitTicker = 0;
 
-  options.done = function (i) {
+  t.context.options.done = function (i) {
     return i >= 3;
   };
-  let storm = new Storm(options);
+  
+  let storm = new Storm(t.context.options);
 
   t.is(typeof storm.done, 'function');
-  t.is(storm.done, options.done);
+  t.is(storm.done, t.context.options.done);
 });
 
 // Promise-based Tests....
 
-test.skip('Storm<Promise> run should accept return values', t => {
-  let storm = new Storm(options);
+test('Storm<Promise> run should accept return values', async (t) => {
+  const INPUTS = { a: 1, b: 4, c: 0.5 };
+  const OUTPUT = 14.5;
+  let result = await t.context.storm.run(INPUTS);
 
-  return storm.start().then(results => {
-    t.true(results.all instanceof Array);
-    t.is(results.all.length, EXPECTED_RESULT_COUNT);
-  });
+  t.is(typeof result, 'number');
+  t.is(result, OUTPUT);
 });
 
-test.skip('Storm<Promise> run should accept promises', t => {
+test('Storm<Promise> run should accept promises', async (t) => {
 
-  options.run = (params) => {
+  t.context.storm.run = (params) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve((params.a * params.b) / params.c);
@@ -99,39 +101,32 @@ test.skip('Storm<Promise> run should accept promises', t => {
     });
   };
 
-  let storm = new Storm(options);
+  const INPUTS = { a: 1, b: 4, c: 0.5 };
+  const OUTPUT = 8;
+  let result = await t.context.storm.run(INPUTS);
 
-  return storm.start().then(results => {
-    t.true(results.all instanceof Array);
-    t.is(results.all.length, EXPECTED_RESULT_COUNT);
-  });
+  t.is(typeof result, 'number');
+  t.is(result, OUTPUT);
 });
 
-test.skip('Storm<Promise> run should handle exceptions', t => {
+test('Storm<Promise> run should handle exceptions', async (t) => {
 
-  options.run = (params) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        reject(new Error(`Some lame error!`));
-      }, DELAY);
-    });
+  t.context.storm.run = (params) => {
+    throw new Error(`Some lame error!`);
   };
 
-  let storm = new Storm(options);
+  let gen = await t.context.storm.step();
 
-  return storm.start().then(results => {
-    t.true(results.all instanceof Array);
-    t.true(results.all[0].result instanceof Error);
-    t.is(results.all.length, EXPECTED_RESULT_COUNT);
-  });
+  t.true(gen[0].result instanceof Error);
+  t.false(gen[0].success);
+  t.is(gen[0].score, 0);
 });
 
 // Stream based tests...
 
 test.skip('Storm<Stream> run should accept return values', t => {
-  let storm = new Storm(options);
 
-  return toArray(storm).then(results => {
+  return toArray(t.context.storm).then(results => {
     t.true(results instanceof Array);
     t.is(results.length, EXPECTED_RESULT_COUNT);
   });
@@ -139,7 +134,7 @@ test.skip('Storm<Stream> run should accept return values', t => {
 
 test.skip('Storm<Stream> run should accept promises', t => {
   
-  options.run = (params) => {
+  t.context.storm.run = (params) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve((params.a * params.b) / params.c);
@@ -147,9 +142,7 @@ test.skip('Storm<Stream> run should accept promises', t => {
     });
   };
 
-  let storm = new Storm(options);
-
-  return toArray(storm).then(results => {
+  return toArray(t.context.storm).then(results => {
     t.true(results instanceof Array);
     t.is(results.length, EXPECTED_RESULT_COUNT);
   });
@@ -157,7 +150,7 @@ test.skip('Storm<Stream> run should accept promises', t => {
 
 test.skip('Storm<Stream> run should handle exceptions', t => {
 
-  options.run = (params) => {
+  t.context.storm.run = (params) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         reject(new Error(`Some lame error!`));
@@ -165,9 +158,7 @@ test.skip('Storm<Stream> run should handle exceptions', t => {
     });
   };
 
-  let storm = new Storm(options);
-
-  return toArray(storm).then(results => {
+  return toArray(t.context.storm).then(results => {
     t.true(results instanceof Array);
     t.true(results[0].result instanceof Error);
     t.is(results.length, EXPECTED_RESULT_COUNT);

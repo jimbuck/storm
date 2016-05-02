@@ -1,6 +1,6 @@
 
 import {IStormRecord} from './logic/models';
-import BaseSelection from './logic/selectors/base';
+import {BaseSelector} from './logic/selectors/base';
 import {BaseGenerator} from './utils/data';
 
 export const PLAYER_A = { score: 1 };
@@ -11,7 +11,7 @@ export const PLAYER_E = { score: 8 };
 export const PLAYER_F = { score: 13 };
 export const PLAYERS = [PLAYER_D, PLAYER_A, PLAYER_F, PLAYER_B, PLAYER_E, PLAYER_C];
 
-export class TestSelector extends BaseSelection
+export class TestSelector extends BaseSelector
 {
   constructor() {
     super();
@@ -24,4 +24,19 @@ export class TestSelector extends BaseSelection
   runCompare(a: IStormRecord, b: IStormRecord) {
     return this.compare(a, b);
   }
+}
+
+export function randomStormResult(score: number, params?: any):IStormRecord {
+  return {
+    id: Math.floor(Math.random() * 99999999),
+    generation: Math.floor(Math.random() * 999),
+    success: true,
+    score: score,
+    time: 0,
+    result: Math.random()*99999,
+    params: params || {
+      x: Math.floor(Math.random() * 20) - 10,
+      y: Math.floor(Math.random() * 20) - 10
+    }    
+  };
 }

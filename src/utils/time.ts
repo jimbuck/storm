@@ -1,8 +1,5 @@
 
 export default class Time {
-  constructor() {
-
-  }
 
   static get current() {
     let hrtime = process.hrtime()

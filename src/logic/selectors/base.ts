@@ -1,7 +1,12 @@
 
 import {IStormRecord} from '../models';
 
-abstract class BaseSelector
+export interface ISelector
+{
+  select(gen: IStormRecord[], count: number): IStormRecord[];
+}  
+
+export abstract class BaseSelector implements ISelector
 {
   abstract select(gen: IStormRecord[], count: number): IStormRecord[];
 
@@ -34,5 +39,3 @@ abstract class BaseSelector
     return b.time < a.time ? b : a;
   }
 }
-
-export default BaseSelector;

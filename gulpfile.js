@@ -34,6 +34,10 @@ class Tasks {
     return shell.task('nyc --color -a ava -v', { ignoreErrors: true });
   }
 
+  static get coverage() {
+    return shell.task('nyc --reporter=lcov -a ava -v & start ./coverage/lcov-report/index.html', { ignoreErrors: true });
+  }
+
   static watch() {
     return gulp.watch([paths.src + '**/*'], ['quicktest']);
   }
@@ -60,7 +64,10 @@ gulp.task('build', ['build:tests', 'build:src']);
 
 // Run the basic `npm test` command after a quick build...
 gulp.task('quicktest', Tasks.test);
-gulp.task('test', ['build'],  Tasks.test);
+gulp.task('test', ['build'], Tasks.test);
+
+// Run tests, generate the HTML coverage report and open the browser.
+gulp.task('coverage', ['build'], Tasks.coverage);
 
 // Used for better development (watch with TAP output) (but also because we now are moving more files around)
 gulp.task('watch', ['build'], Tasks.watch);

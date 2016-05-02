@@ -1,8 +1,8 @@
 
 import {IStormRecord} from '../models';
-import BaseSelection from './base';
+import {BaseSelector} from './base';
 
-export default class Top extends BaseSelection
+export default class Top extends BaseSelector
 {
   constructor() {
     super();

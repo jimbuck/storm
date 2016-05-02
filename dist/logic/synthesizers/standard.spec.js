@@ -1,16 +1,41 @@
 import test from 'ava';
 
-import {RandomInteger} from '../../utils/data';
+import {randomStormResult} from '../../test-data';
+import {OrderedItem, ArgumentGenerator} from '../../utils/data';
 import StandardSynthesizer from './standard';
 
-test('return an empty array if no previous generation', t => {
-  let synth = new StandardSynthesizer({
-    generationSize: 3,
-    params: {
-      a: new RandomInteger(-10, 10)
-    }
+
+test.beforeEach(t => {
+  t.context.ss = new StandardSynthesizer({
+    generationSize: 8,
+    clone: 2,
+    params: new ArgumentGenerator({
+      prop1: new OrderedItem(['a', 'b']),
+      prop2: new OrderedItem(['a', 'b']),
+      prop3: new OrderedItem(['a', 'b'])
+    }),
+    mutationRate: -1
+  });
+});
+
+test(`StandardSynthesizer 'cross' should mix stats from two parents`, t => {
+  let parentA = randomStormResult(2, {
+    prop1: 'a',
+    prop2: 'a',
+    prop3: 'a'
   });
 
-  let nextGen = synth.breed([]);
-  t.is(nextGen.length, 0);
+  let parentB = randomStormResult(4, {
+    prop1: 'b',
+    prop2: 'b',
+    prop3: 'b'
+  });
+
+  let child = t.context.ss.cross(parentA, parentB);
+  const PROPS = Object.keys(child);
+
+  PROPS.forEach(prop => {
+    t.true(parentA.params.hasOwnProperty(prop) && parentB.params.hasOwnProperty(prop));
+    t.true(child[prop] === parentA.params[prop] || child[prop] === parentB.params[prop]);
+  });
 });

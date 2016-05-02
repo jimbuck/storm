@@ -5,10 +5,10 @@ import {ArgumentGenerator} from './utils/data';
 
 import time from './utils/time';
 
-import BaseSelector from './logic/selectors/base';
+import {ISelector} from './logic/selectors/base';
 import Tournament from './logic/selectors/tournament';
 
-import BaseSynthesizer from './logic/synthesizers/base';
+import {BaseSynthesizer, ISynthesizer} from './logic/synthesizers/base';
 import StandardSynthesizer from './logic/synthesizers/standard';
 
 const identity = (thing: any) => { return thing };
@@ -18,6 +18,8 @@ let trialId = 0;
 // Expose helper classes and types.
 export {OrderedNumber, RandomInteger, RandomFloat, OrderedItem} from './utils/data';
 export {IStormConfig, IStormRecord, StormResult} from './logic/models';
+export {ISelector} from './logic/selectors/base';
+export {BaseSynthesizer, ISynthesizer} from './logic/synthesizers/base';
 
 export interface DoneFunction
 {
@@ -39,8 +41,8 @@ export class Storm// extends Readable
   
   public generationSize: number;
 
-  public selector: BaseSelector;
-  public synthesizer: BaseSynthesizer;
+  public selector: ISelector;
+  public synthesizer: ISynthesizer<any>;
 
   /**
    * Creates a new Storm instance ready for execution.
@@ -89,13 +91,18 @@ export class Storm// extends Readable
     this.score = options.score;
 
     this.selector = options.selector || new Tournament({
-      tournamentSize: Math.max(5, Math.floor(this.generationSize * 0.2))
+      tournamentSize: Math.max(4, Math.floor(this.generationSize * 0.2))
     });
 
-    this.synthesizer = options.synthesizer || new StandardSynthesizer({
+    this.synthesizer = new StandardSynthesizer({
       generationSize: this.generationSize,
-      params: this.params
+      params: this.params,
+      clone: options.clone
     });
+    
+    if (typeof options.cross !== 'undefined') {
+      this.synthesizer.cross = options.cross;
+    }
   }
 
   // public _read() {
@@ -142,7 +149,7 @@ export class Storm// extends Readable
     let currentGen: any[];
 
     if (prevGen) {
-      currentGen = this.synthesizer.breed(prevGen.map(p => p.params));
+      currentGen = this.synthesizer.breed(prevGen);
     } else {
       currentGen = this.params.nextValues(this.generationSize);
     }

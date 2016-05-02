@@ -1,5 +1,5 @@
-import BaseSelector from './selectors/base';
-import BaseSynthesizer from './synthesizers/base';
+import {ISelector} from './selectors/base';
+import {ISynthesizer} from './synthesizers/base';
 
 /**
  * Configuration Settings for a standard Storm instance.
@@ -36,18 +36,28 @@ export interface IStormConfig {
   /**
    * Optional object for handling the selection of the best canidates from each generation.
    */  
-  selector?: BaseSelector;
+  selector?: ISelector;
 
   /**
    * Optional object for handling the crossover and mutation of canidates in a generation.
    */  
-  synthesizer?: BaseSynthesizer;
+  cross?: (parentA: any, parentB: any) => any;
+
+  /**
+   * The number of winners to clone over to the next generation.
+   */  
+  clone?: number;
 }
 
 /**
  * An unabridged collection of records with aggregated data used at the end of each generation.
  */
 export class StormResult {
+
+  /**
+   * Count of all records across all generations.
+   */
+  public totalCount: number;
 
   /**
    * The sum of all of the scores across all generations (used to find averages).
@@ -63,7 +73,7 @@ export class StormResult {
    * The average score across all generations.
    */
   public get avg(): number {
-    return this.all.length ? this.totalScore / this.all.length : 0;
+    return this.totalCount ? this.totalScore / this.totalCount : 0;
   }
 
   /**
@@ -77,17 +87,18 @@ export class StormResult {
   public max: IStormRecord;
 
   /**
-   * All records across all generations.
-   */
-  public all: IStormRecord[];
+   * 
+   */  
+  public generations: { id: number, max: IStormRecord, avg: number }[];
 
   /**
    * Creates a new StormResult to house the generation and lifetime data.
    */
   constructor() {
-    this.all = [];
-    this.totalGenerations = 0;
+    this.totalCount = 0;
     this.totalScore = 0;
+    this.totalGenerations = 0;
+    this.generations = [];
     this.min = { score: Number.MAX_VALUE } as IStormRecord;
     this.max = { score: Number.MIN_VALUE } as IStormRecord;
   }
@@ -96,10 +107,11 @@ export class StormResult {
    * Adds a new generation to the result instance.
    */
   public add(results: IStormRecord[]) {
+    let genMax = results[0];
+    let generationTotal = 0;
+    
     results.forEach(result => {
-      this.totalScore += result.score;
-      this.all.push(result);
-
+      
       if (result.score < this.min.score) {
         this.min = result;
       }
@@ -107,8 +119,25 @@ export class StormResult {
       if (result.score > this.max.score) {
         this.max = result;
       }
+
+      if (result.score > genMax.score) {
+        genMax = result;        
+      }
+
+      generationTotal += result.score;
+      this.totalScore += result.score;
     });
+    
+    this.generations.push({
+      id: this.generations.length,
+      max: genMax,
+      avg: generationTotal / results.length
+    });
+    
+    this.totalCount += results.length;
     this.totalGenerations++;
+
+    //console.log(`Gen ${this.totalGenerations} => Best: ${genMax.score} | Avg: ${generationTotal / results.length}`);
   }
 }
 

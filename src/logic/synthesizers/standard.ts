@@ -1,48 +1,40 @@
 
 import {IDataGenerator, ArgumentGenerator} from '../../utils/data';
-import {shuffle, random} from '../../utils/array';
-import BaseSynthesizer from './base';
+import {IStormRecord} from '../models';
+import {shuffle, random, sort} from '../../utils/array';
+import {BaseSynthesizer} from './base';
 
-export default class StandardSynthesizer extends BaseSynthesizer
+export default class StandardSynthesizer<T> extends BaseSynthesizer<T>
 {
+  public mutationRate: number;
+
   /**
    * Creates a standard synthesizer, randomly mixing parents with a small chance of mutation.
    */
-  constructor(options: {
+  constructor(opts: {
     generationSize: number,
-    params: ArgumentGenerator
+    clone?: number,
+    params: ArgumentGenerator,
+    mutationRate?: number
   }) {
-    super(options);
+    super(opts);
+
+    this.mutationRate = opts.mutationRate || 0.1;
   }
 
-  public breed(gen: any[]): any[] {
+  public cross(parentA: IStormRecord, parentB:IStormRecord): T {
+    let child: any = {};
+    let props = Object.keys(parentA.params);
 
-    if (gen.length === 0) {
-      return [];
-    }
+    props.forEach(prop => {
+      child[prop] = (Math.random() > 0.5) ? parentA.params[prop] : parentB.params[prop];
 
-    let nextGen:any[] = [];
-
-    let props = Object.keys(gen[0]);    
-    while (nextGen.length < this.generationSize) {
-      let pool = shuffle(gen.slice());
-      let parentA = pool.pop();
-      let parentB = pool.pop();
-
-      let child: any = {};
-
-      for (let prop of props) {
-        child[prop] = (Math.random() > 0.5) ? parentA[prop] : parentB[prop];
-      }
-
-      if (Math.random() < 0.25) {
+      if (Math.random() < this.mutationRate) {
         let randomProp = random(props);
         child[randomProp] = this.params.nextValue()[randomProp];
       }
+    });
 
-      nextGen.push(child);      
-    }
-    
-    return nextGen;    
+    return child;
   }
 }
