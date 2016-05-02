@@ -41,7 +41,7 @@ export abstract class BaseSynthesizer<T> implements ISynthesizer<T>
 
     if (this.clone > 0) {
       gen = sort(gen.slice(), 'score', true);
-      nextGen.push(...gen.slice(0, this.clone).map(c => c.params));
+      Array.prototype.push.apply(nextGen, gen.slice(0, this.clone).map(c => c.params));
     }
 
     while (nextGen.length < this.generationSize) {

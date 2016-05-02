@@ -31,11 +31,11 @@ class Tasks {
   }
 
   static get test() {
-    return shell.task('nyc --color -a ava -v', { ignoreErrors: true });
+    return shell.task('nyc --color -a ava -v');
   }
 
   static get coverage() {
-    return shell.task('nyc --reporter=lcov -a ava -v & start ./coverage/lcov-report/index.html', { ignoreErrors: true });
+    return shell.task('nyc --reporter=lcov -a ava -v & start ./coverage/lcov-report/index.html');
   }
 
   static watch() {
