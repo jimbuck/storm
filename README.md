@@ -1,4 +1,5 @@
-#Storm
+# Storm
+
 Because thinking is hard.
 
 [![Build Status](https://travis-ci.org/JimmyBoh/storm.svg?branch=master)](https://travis-ci.org/JimmyBoh/storm)
